@@ -1,0 +1,366 @@
+/*
+Paleta de Cores:
+- Vinho (Logo): #8B0000
+- Cinza Escuro (Texto Principal): #333333
+- Cinza Claro (Detalhes/Bordas): #dddddd
+- Fundo Principal: #f4f7f6
+- Destaque Hover: #6a0000
+- Fundo do Cartão: #FFFFFF
+*/
+
+/* Estilos Gerais */
+body {
+    margin: 0;
+    padding: 20px;
+    /* Adiciona um respiro nas laterais em telas menores */
+    box-sizing: border-box;
+    /* Garante que o padding não quebre o layout */
+    font-family: "Inter", sans-serif;
+    /* --- FUNDO ALTERNATIVO 1 --- */
+    background: linear-gradient(135deg, #4d0000 0%, #1a1a1a 100%);
+    /* --- FIM DO FUNDO --- */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #333333;
+}
+
+/* Contêiner Principal para Cartões */
+.card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centraliza verticalmente */
+    align-items: center;    /* Centraliza horizontalmente */
+    /* O gradiente é adicionado aqui */
+    background: linear-gradient(145deg, #ffffff 0%, #f7f7f7 100%);
+    padding: 40px 50px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Sombra um pouco mais forte para destacar */
+    text-align: center;
+    max-width: 450px;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.05); /* Borda sutil para dar acabamento */
+    min-height: 400px; 
+}
+
+.logo {
+    max-width: 150px;
+    margin-bottom: 25px;
+}
+
+h1 {
+    color: #8B0000;
+    margin-bottom: 10px;
+    font-size: 1.8em;
+}
+
+p {
+    color: #666;
+    margin-bottom: 30px;
+}
+
+/* Grupo de Botões (Página Home) */
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Estilos dos Botões */
+.btn {
+    display: inline-block;
+    width: 100%;
+    padding: 15px 20px;
+    border-radius: 8px;
+    border: none;
+    background-color: #8B0000;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-sizing: border-box;
+}
+
+.btn:hover {
+    background-color: #6a0000;
+    transform: translateY(-2px);
+}
+
+/* Formulário de Requisição (Página Comprador) */
+.form-container {
+    width: 100%;
+}
+
+.form-container label {
+    display: block;
+    text-align: left;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.form-container input[type="text"],
+.form-container textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: 1px solid #dddddd;
+    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-container input[type="text"]:focus,
+.form-container textarea:focus {
+    outline: none;
+    border-color: #8B0000;
+    box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.1);
+}
+
+.form-container textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Aviso de Detalhamento */
+.aviso {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+    padding: 15px;
+    border-radius: 8px;
+    margin: -5px 0 20px 0;
+    text-align: left;
+    font-size: 14px;
+}
+
+.aviso strong {
+    color: #856404;
+}
+
+/* Links */
+a.back-link {
+    display: block;
+    margin-top: 20px;
+    color: #8B0000;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+a.back-link:hover {
+    text-decoration: underline;
+    color: #6a0000;
+}
+
+/* #################### MEDIA QUERIES PARA RESPONSIVIDADE #################### */
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    .card {
+        padding: 25px 20px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    .btn {
+        padding: 14px 18px;
+    }
+}
+
+/* #################### ESTILOS DO ALERTA CUSTOMIZADO (NOVO) #################### */
+
+/* Fundo escurecido */
+#custom-alert-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 100;
+    transition: opacity 0.3s ease;
+}
+
+/* Caixa de Alerta */
+#custom-alert {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 101;
+    text-align: center;
+    width: 90%;
+    max-width: 350px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+#custom-alert p {
+    margin: 0 0 20px 0;
+    /* Ajusta a margem do parágrafo do alerta */
+    font-size: 18px;
+    color: #333;
+}
+
+#custom-alert .btn {
+    width: auto;
+    padding: 10px 40px;
+}
+
+/* Classe para esconder/mostrar */
+.hidden {
+    opacity: 0;
+    pointer-events: none;
+    /* Impede cliques quando escondido */
+}
+
+/* Ajusta a transformação quando escondido para um efeito de "zoom out" */
+#custom-alert.hidden {
+    transform: translate(-50%, -50%) scale(0.7);
+}
+/* ... (todo o CSS anterior permanece igual) ... */
+
+/* #################### ESTILOS DA CONFIRMAÇÃO #################### */
+
+#confirmation-message h2 {
+    color: #27ae60;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+/* ... (restante dos estilos da confirmação) ... */
+@keyframes fill {
+    100% { box-shadow: inset 0px 0px 0px 40px #27ae60; }
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* #################### ESTILOS DE VALIDAÇÃO DE CAMPO (NOVO) #################### */
+
+/* Estilo para a borda do input com erro */
+.input-error {
+    border-color: #e74c3c !important; /* Vermelho para erro */
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1) !important;
+}
+
+/* Estilo para a mensagem de erro abaixo do campo */
+.error-message {
+    color: #e74c3c;
+    font-size: 13px;
+    text-align: left;
+    display: block;
+    margin-top: -15px; /* Puxa a mensagem para perto do campo */
+    margin-bottom: 15px;
+}
+/* ... (todo o seu CSS anterior) ... */
+
+/* #################### ESTILOS DE VALIDAÇÃO DE CAMPO #################### */
+/* ... (estilos de validação continuam os mesmos) ... */
+
+/* #################### ESTILOS DO INDICADOR DE CARREGAMENTO (NOVO) #################### */
+
+/* Ajuste no botão para alinhar o spinner e o texto */
+.btn {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px; /* Espaço entre o texto e o spinner */
+}
+
+/* Estado desabilitado do botão */
+.btn:disabled {
+    background-color: #6a0000; /* Tom mais escuro */
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+/* O Spinner */
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #ffffff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+/* Animação de rotação */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+/* #################### ESTILOS DO ÍCONE DE SUCESSO ANIMADO (NOVO) #################### */
+
+.success-animation {
+    margin: 30px auto;
+}
+
+.checkmark {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 3;
+    stroke: #fff;
+    stroke-miterlimit: 10;
+    margin: 10% auto;
+    box-shadow: inset 0px 0px 0px #27ae60;
+    animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+}
+
+.checkmark-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 3;
+    stroke-miterlimit: 10;
+    stroke: #27ae60;
+    fill: none;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+@keyframes stroke {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes scale {
+    0%, 100% {
+        transform: none;
+    }
+    50% {
+        transform: scale3d(1.1, 1.1, 1);
+    }
+}
+
+@keyframes fill {
+    100% {
+        box-shadow: inset 0px 0px 0px 50px #27ae60;
+    }
+}

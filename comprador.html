@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Izi Hotel - Requisição</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
+        <link rel="icon" type="image/png" href="logo.png">
+</head>
+
+<body>
+    <main class="card">
+        <img src="logo.png" alt="Logo Izi Hotel" class="logo">
+        
+        <div id="form-wrapper">
+            <div class="form-container">
+                <label for="nome">Nome Completo</label>
+                <input type="text" id="nome" placeholder="Seu nome aqui">
+                <span class="error-message hidden" id="error-nome">Por favor, preencha seu nome.</span>
+
+                <label for="telefone">Telefone (WhatsApp)</label>
+                <input type="text" id="telefone" placeholder="(XX) XXXXX-XXXX">
+                <span class="error-message hidden" id="error-telefone">Por favor, preencha um telefone válido.</span>
+
+                <label for="descricao">Descrição detalhada da compra</label>
+                <textarea id="descricao" rows="5" placeholder="Ex: 10 caixas de caneta azul, marca BIC, ponta fina."></textarea>
+                <span class="error-message hidden" id="error-descricao">Por favor, descreva o produto.</span>
+                
+                <p class="aviso"><strong>Atenção:</strong> Por favor, seja o mais detalhado possível na descrição para que sua solicitação seja atendida corretamente.</p>
+                
+                <button class="btn" id="submit-btn" onclick="enviarWhatsApp()">
+                    <span class="btn-text">Enviar Requisição via WhatsApp</span>
+                    <span class="spinner hidden"></span>
+                </button>
+            </div>
+            <a href="index.html" class="back-link">Voltar para a Home</a>
+        </div>
+
+        <div id="confirmation-message" class="hidden">
+<div class="success-animation">
+    <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+        <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+        <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+    </svg>
+</div>
+            <h2>Requisição Enviada!</h2>
+            <p>Sua mensagem está sendo aberta no WhatsApp. Após enviar, você pode fechar a aba.</p>
+            <a href="index.html" class="btn">Voltar para a Home</a>
+        </div>
+
+    </main>
+
+    <script src="https://unpkg.com/imask"></script>
+
+    <script>
+        // --- ELEMENTOS ---
+        const formWrapper = document.getElementById('form-wrapper');
+        const confirmationMessage = document.getElementById('confirmation-message');
+        const nomeInput = document.getElementById('nome');
+        const telefoneInput = document.getElementById('telefone');
+        const descricaoInput = document.getElementById('descricao');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.querySelector('.btn-text');
+        const spinner = document.querySelector('.spinner');
+
+        // --- FUNÇÃO DE VALIDAÇÃO ---
+        function validateFields() {
+            let isValid = true;
+            // ... (código de validação continua o mesmo) ...
+            if (nomeInput.value.trim() === '') {
+                document.getElementById('error-nome').classList.remove('hidden');
+                nomeInput.classList.add('input-error');
+                isValid = false;
+            } else {
+                document.getElementById('error-nome').classList.add('hidden');
+                nomeInput.classList.remove('input-error');
+            }
+            if (telefoneInput.value.length < 14) {
+                document.getElementById('error-telefone').classList.remove('hidden');
+                telefoneInput.classList.add('input-error');
+                isValid = false;
+            } else {
+                document.getElementById('error-telefone').classList.add('hidden');
+                telefoneInput.classList.remove('input-error');
+            }
+            if (descricaoInput.value.trim() === '') {
+                document.getElementById('error-descricao').classList.remove('hidden');
+                descricaoInput.classList.add('input-error');
+                isValid = false;
+            } else {
+                document.getElementById('error-descricao').classList.add('hidden');
+                descricaoInput.classList.remove('input-error');
+            }
+            return isValid;
+        }
+
+        // --- FUNÇÃO DE ENVIO ---
+        function enviarWhatsApp() {
+            if (validateFields()) {
+                // Ativa o estado de carregamento
+                submitBtn.disabled = true;
+                btnText.textContent = 'Enviando...';
+                spinner.classList.remove('hidden');
+
+                const numero = "67992007055";
+                const mensagem = `*Nova Requisição de Compra*%0A%0A*Solicitante:* ${nomeInput.value}%0A*Contato:* ${telefoneInput.value}%0A%0A*Produto(s):*%0A${descricaoInput.value}`;
+                const link = `https://wa.me/${numero}?text=${mensagem}`;
+                
+                // Abre o WhatsApp
+                window.open(link, '_blank');
+
+                // Após um pequeno atraso, mostra a confirmação
+                setTimeout(() => {
+                    formWrapper.classList.add('hidden');
+                    confirmationMessage.classList.remove('hidden');
+                }, 500); // 0.5 segundos de atraso
+            }
+        }
+
+        // --- MÁSCARA DE TELEFONE ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const phoneMaskOptions = {
+                mask: [ { mask: '(00) 0000-0000' }, { mask: '(00) 00000-0000' } ]
+            };
+            IMask(telefoneInput, phoneMaskOptions);
+        });
+    </script>
+</body>
+</html>
