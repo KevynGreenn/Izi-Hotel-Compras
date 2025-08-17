@@ -11,13 +11,13 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
         rel="stylesheet">
-        <link rel="icon" type="image/png" href="logo.png">
+    <link rel="icon" type="image/png" href="logo.png">
 </head>
 
 <body>
     <main class="card">
         <img src="logo.png" alt="Logo Izi Hotel" class="logo">
-        
+
         <div id="form-wrapper">
             <div class="form-container">
                 <label for="nome">Nome Completo</label>
@@ -29,11 +29,24 @@
                 <span class="error-message hidden" id="error-telefone">Por favor, preencha um telefone válido.</span>
 
                 <label for="descricao">Descrição detalhada da compra</label>
-                <textarea id="descricao" rows="5" placeholder="Ex: 10 caixas de caneta azul, marca BIC, ponta fina."></textarea>
+                <textarea id="descricao" rows="5"
+                    placeholder="Ex: 10 caixas de caneta azul, marca BIC, ponta fina."></textarea>
                 <span class="error-message hidden" id="error-descricao">Por favor, descreva o produto.</span>
-                
-                <p class="aviso"><strong>Atenção:</strong> Por favor, seja o mais detalhado possível na descrição para que sua solicitação seja atendida corretamente.</p>
-                
+
+                <p class="aviso"><strong>Atenção:</strong> Por favor, seja o mais detalhado possível na descrição para
+                    que sua solicitação seja atendida corretamente.</p>
+
+                <label for="centro-custo">Centro de Custo</label>
+                <input type="text" id="centro-custo" placeholder="Ex: Izi Express">
+                <span class="error-message hidden" id="error-centro-custo">Por favor, preencha o centro de
+                    custo.</span>
+
+                <label for="pagamento">Opção de Pagamento</label>
+                <select id="pagamento">
+                    <option value="Cartão">Cartão</option>
+                    <option value="Faturado">Faturado</option>
+                </select>
+
                 <button class="btn" id="submit-btn" onclick="enviarWhatsApp()">
                     <span class="btn-text">Enviar Requisição via WhatsApp</span>
                     <span class="spinner hidden"></span>
@@ -43,12 +56,12 @@
         </div>
 
         <div id="confirmation-message" class="hidden">
-<div class="success-animation">
-    <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-        <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
-        <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
-    </svg>
-</div>
+            <div class="success-animation">
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                </svg>
+            </div>
             <h2>Requisição Enviada!</h2>
             <p>Sua mensagem está sendo aberta no WhatsApp. Após enviar, você pode fechar a aba.</p>
             <a href="index.html" class="btn">Voltar para a Home</a>
@@ -65,6 +78,8 @@
         const nomeInput = document.getElementById('nome');
         const telefoneInput = document.getElementById('telefone');
         const descricaoInput = document.getElementById('descricao');
+        const centroCustoInput = document.getElementById('centro-custo');
+        const pagamentoInput = document.getElementById('pagamento');
         const submitBtn = document.getElementById('submit-btn');
         const btnText = document.querySelector('.btn-text');
         const spinner = document.querySelector('.spinner');
@@ -72,7 +87,8 @@
         // --- FUNÇÃO DE VALIDAÇÃO ---
         function validateFields() {
             let isValid = true;
-            // ... (código de validação continua o mesmo) ...
+
+            // Validação do Nome
             if (nomeInput.value.trim() === '') {
                 document.getElementById('error-nome').classList.remove('hidden');
                 nomeInput.classList.add('input-error');
@@ -81,7 +97,9 @@
                 document.getElementById('error-nome').classList.add('hidden');
                 nomeInput.classList.remove('input-error');
             }
-            if (telefoneInput.value.length < 14) {
+
+            // Validação do Telefone
+            if (telefoneInput.value.length < 14) { // Checa o tamanho mínimo com a máscara
                 document.getElementById('error-telefone').classList.remove('hidden');
                 telefoneInput.classList.add('input-error');
                 isValid = false;
@@ -89,6 +107,8 @@
                 document.getElementById('error-telefone').classList.add('hidden');
                 telefoneInput.classList.remove('input-error');
             }
+
+            // Validação da Descrição
             if (descricaoInput.value.trim() === '') {
                 document.getElementById('error-descricao').classList.remove('hidden');
                 descricaoInput.classList.add('input-error');
@@ -96,6 +116,16 @@
             } else {
                 document.getElementById('error-descricao').classList.add('hidden');
                 descricaoInput.classList.remove('input-error');
+            }
+            
+            // Validação do Centro de Custo
+            if (centroCustoInput.value.trim() === '') {
+                document.getElementById('error-centro-custo').classList.remove('hidden');
+                centroCustoInput.classList.add('input-error');
+                isValid = false;
+            } else {
+                document.getElementById('error-centro-custo').classList.add('hidden');
+                centroCustoInput.classList.remove('input-error');
             }
             return isValid;
         }
@@ -108,10 +138,16 @@
                 btnText.textContent = 'Enviando...';
                 spinner.classList.remove('hidden');
 
-                const numero = "14997990091";
-                const mensagem = `*Nova Requisição de Compra*%0A%0A*Solicitante:* ${nomeInput.value}%0A*Contato:* ${telefoneInput.value}%0A%0A*Produto(s):*%0A${descricaoInput.value}`;
+                const numero = "14997990091"; // Número de destino do WhatsApp
+                const mensagem = `*Nova Requisição de Compra*%0A%0A` +
+                    `*Solicitante:* ${nomeInput.value}%0A` +
+                    `*Contato:* ${telefoneInput.value}%0A` +
+                    `*Centro de Custo:* ${centroCustoInput.value}%0A` +
+                    `*Opção de Pagamento:* ${pagamentoInput.value}%0A%0A` +
+                    `*Produto(s):*%0A${descricaoInput.value}`;
+
                 const link = `https://wa.me/${numero}?text=${mensagem}`;
-                
+
                 // Abre o WhatsApp
                 window.open(link, '_blank');
 
@@ -124,12 +160,13 @@
         }
 
         // --- MÁSCARA DE TELEFONE ---
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const phoneMaskOptions = {
-                mask: [ { mask: '(00) 0000-0000' }, { mask: '(00) 00000-0000' } ]
+                mask: [{ mask: '(00) 0000-0000' }, { mask: '(00) 00000-0000' }]
             };
             IMask(telefoneInput, phoneMaskOptions);
         });
     </script>
 </body>
+
 </html>

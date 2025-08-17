@@ -12,13 +12,9 @@ Paleta de Cores:
 body {
     margin: 0;
     padding: 20px;
-    /* Adiciona um respiro nas laterais em telas menores */
     box-sizing: border-box;
-    /* Garante que o padding não quebre o layout */
     font-family: "Inter", sans-serif;
-    /* --- FUNDO ALTERNATIVO 1 --- */
     background: linear-gradient(135deg, #4d0000 0%, #1a1a1a 100%);
-    /* --- FIM DO FUNDO --- */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -30,19 +26,18 @@ body {
 .card {
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Centraliza verticalmente */
-    align-items: center;    /* Centraliza horizontalmente */
-    /* O gradiente é adicionado aqui */
+    justify-content: center;
+    align-items: center;
     background: linear-gradient(145deg, #ffffff 0%, #f7f7f7 100%);
     padding: 40px 50px;
     border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Sombra um pouco mais forte para destacar */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     text-align: center;
     max-width: 450px;
     width: 100%;
     box-sizing: border-box;
-    border: 1px solid rgba(0, 0, 0, 0.05); /* Borda sutil para dar acabamento */
-    min-height: 400px; 
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    min-height: 400px;
 }
 
 .logo {
@@ -70,7 +65,9 @@ p {
 
 /* Estilos dos Botões */
 .btn {
-    display: inline-block;
+    display: inline-flex; /* Alterado para inline-flex para melhor alinhamento */
+    justify-content: center;
+    align-items: center;
     width: 100%;
     padding: 15px 20px;
     border-radius: 8px;
@@ -84,7 +81,9 @@ p {
     text-decoration: none;
     transition: background-color 0.3s ease, transform 0.2s ease;
     box-sizing: border-box;
+    gap: 10px; /* Espaço entre o texto e o spinner */
 }
+
 
 .btn:hover {
     background-color: #6a0000;
@@ -104,8 +103,10 @@ p {
     font-size: 14px;
 }
 
+/* Estilo unificado para inputs, textarea e select */
 .form-container input[type="text"],
-.form-container textarea {
+.form-container textarea,
+.form-container select {
     width: 100%;
     padding: 12px;
     margin-bottom: 20px;
@@ -115,10 +116,25 @@ p {
     font-family: "Inter", sans-serif;
     font-size: 16px;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    -webkit-appearance: none; /* Remove a aparência padrão no iOS */
+    -moz-appearance: none; /* Remove a aparência padrão no Firefox */
+    appearance: none; /* Remove a aparência padrão */
+    background-color: white; /* Garante fundo branco */
 }
 
+/* Adiciona uma seta para o select */
+.form-container select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 1em;
+    padding-right: 40px; /* Espaço para a seta */
+}
+
+/* Estilo de foco unificado */
 .form-container input[type="text"]:focus,
-.form-container textarea:focus {
+.form-container textarea:focus,
+.form-container select:focus {
     outline: none;
     border-color: #8B0000;
     box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.1);
@@ -180,119 +196,33 @@ a.back-link:hover {
     }
 }
 
-/* #################### ESTILOS DO ALERTA CUSTOMIZADO (NOVO) #################### */
+/* #################### ESTILOS DE VALIDAÇÃO DE CAMPO #################### */
 
-/* Fundo escurecido */
-#custom-alert-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    z-index: 100;
-    transition: opacity 0.3s ease;
+.input-error {
+    border-color: #e74c3c !important;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1) !important;
 }
 
-/* Caixa de Alerta */
-#custom-alert {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(1);
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    z-index: 101;
-    text-align: center;
-    width: 90%;
-    max-width: 350px;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-#custom-alert p {
-    margin: 0 0 20px 0;
-    /* Ajusta a margem do parágrafo do alerta */
-    font-size: 18px;
-    color: #333;
-}
-
-#custom-alert .btn {
-    width: auto;
-    padding: 10px 40px;
-}
-
-/* Classe para esconder/mostrar */
-.hidden {
-    opacity: 0;
-    pointer-events: none;
-    /* Impede cliques quando escondido */
-}
-
-/* Ajusta a transformação quando escondido para um efeito de "zoom out" */
-#custom-alert.hidden {
-    transform: translate(-50%, -50%) scale(0.7);
-}
-/* ... (todo o CSS anterior permanece igual) ... */
-
-/* #################### ESTILOS DA CONFIRMAÇÃO #################### */
-
-#confirmation-message h2 {
-    color: #27ae60;
-    margin-top: 20px;
-    margin-bottom: 10px;
-}
-/* ... (restante dos estilos da confirmação) ... */
-@keyframes fill {
-    100% { box-shadow: inset 0px 0px 0px 40px #27ae60; }
+.error-message {
+    color: #e74c3c;
+    font-size: 13px;
+    text-align: left;
+    display: block;
+    margin-top: -15px;
+    margin-bottom: 15px;
 }
 
 .hidden {
     display: none !important;
 }
 
-/* #################### ESTILOS DE VALIDAÇÃO DE CAMPO (NOVO) #################### */
-
-/* Estilo para a borda do input com erro */
-.input-error {
-    border-color: #e74c3c !important; /* Vermelho para erro */
-    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1) !important;
-}
-
-/* Estilo para a mensagem de erro abaixo do campo */
-.error-message {
-    color: #e74c3c;
-    font-size: 13px;
-    text-align: left;
-    display: block;
-    margin-top: -15px; /* Puxa a mensagem para perto do campo */
-    margin-bottom: 15px;
-}
-/* ... (todo o seu CSS anterior) ... */
-
-/* #################### ESTILOS DE VALIDAÇÃO DE CAMPO #################### */
-/* ... (estilos de validação continuam os mesmos) ... */
-
-/* #################### ESTILOS DO INDICADOR DE CARREGAMENTO (NOVO) #################### */
-
-/* Ajuste no botão para alinhar o spinner e o texto */
-.btn {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px; /* Espaço entre o texto e o spinner */
-}
-
-/* Estado desabilitado do botão */
+/* #################### ESTILOS DO INDICADOR DE CARREGAMENTO #################### */
 .btn:disabled {
-    background-color: #6a0000; /* Tom mais escuro */
+    background-color: #6a0000;
     cursor: not-allowed;
     opacity: 0.8;
 }
 
-/* O Spinner */
 .spinner {
     width: 20px;
     height: 20px;
@@ -302,13 +232,18 @@ a.back-link:hover {
     animation: spin 1s ease-in-out infinite;
 }
 
-/* Animação de rotação */
 @keyframes spin {
     to {
         transform: rotate(360deg);
     }
 }
-/* #################### ESTILOS DO ÍCONE DE SUCESSO ANIMADO (NOVO) #################### */
+
+/* #################### ESTILOS DA CONFIRMAÇÃO E ANIMAÇÃO #################### */
+#confirmation-message h2 {
+    color: #27ae60;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
 
 .success-animation {
     margin: 30px auto;
