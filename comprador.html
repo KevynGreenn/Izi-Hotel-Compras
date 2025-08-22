@@ -45,6 +45,7 @@
                 <select id="pagamento">
                     <option value="Cartão">Cartão</option>
                     <option value="Faturado">Faturado</option>
+                    <option value="Pix">Pix</option>
                 </select>
 
                 <button class="btn" id="submit-btn" onclick="enviarWhatsApp()">
@@ -138,12 +139,23 @@
                 btnText.textContent = 'Enviando...';
                 spinner.classList.remove('hidden');
 
-                const numero = "14997990091"; // Número de destino do WhatsApp
+                let numero;
+                const tipoPagamento = pagamentoInput.value;
+
+                if (tipoPagamento === 'Cartão') {
+                    numero = "14997990091"; // Substitua pelo número para pagamentos com Cartão
+                } else if (tipoPagamento === 'Faturado') {
+                    numero = "67998879733"; // Substitua pelo número para pagamentos Faturado
+                } else if (tipoPagamento === 'Pix') {
+                    numero = "14997460689"; // Substitua pelo número para pagamentos Pix
+                }
+
+
                 const mensagem = `*Nova Requisição de Compra*%0A%0A` +
                     `*Solicitante:* ${nomeInput.value}%0A` +
                     `*Contato:* ${telefoneInput.value}%0A` +
                     `*Centro de Custo:* ${centroCustoInput.value}%0A` +
-                    `*Opção de Pagamento:* ${pagamentoInput.value}%0A%0A` +
+                    `*Opção de Pagamento:* ${tipoPagamento}%0A%0A` +
                     `*Produto(s):*%0A${descricaoInput.value}`;
 
                 const link = `https://wa.me/${numero}?text=${mensagem}`;
