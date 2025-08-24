@@ -41,12 +41,33 @@
                 <span class="error-message hidden" id="error-centro-custo">Por favor, preencha o centro de
                     custo.</span>
 
+                <label for="valor">Valor do Produto (R$)</label>
+                <input type="text" id="valor" placeholder="Ex: 150,00">
+                <span class="error-message hidden" id="error-valor">Por favor, preencha o valor do produto.</span>
+
+                <label for="data-pagamento">Data do Pagamento</label>
+                <input type="date" id="data-pagamento">
+                <span class="error-message hidden" id="error-data-pagamento">Por favor, selecione a data do
+                    pagamento.</span>
+
                 <label for="pagamento">Opção de Pagamento</label>
                 <select id="pagamento">
                     <option value="Cartão">Cartão</option>
                     <option value="Faturado">Faturado</option>
                     <option value="Pix">Pix</option>
                 </select>
+
+                <div id="pix-field" class="hidden">
+                    <label for="pix">PIX do Fornecedor</label>
+                    <input type="text" id="pix" placeholder="Chave PIX do fornecedor">
+                    <span class="error-message hidden" id="error-pix">Por favor, preencha a chave PIX.</span>
+
+                    <label for="fornecedor">Nome do Fornecedor</label>
+                    <input type="text" id="fornecedor" placeholder="Nome do fornecedor">
+                    <span class="error-message hidden" id="error-fornecedor">Por favor, preencha o nome do
+                        fornecedor.</span>
+                </div>
+
 
                 <button class="btn" id="submit-btn" onclick="enviarWhatsApp()">
                     <span class="btn-text">Enviar Requisição via WhatsApp</span>
@@ -80,10 +101,24 @@
         const telefoneInput = document.getElementById('telefone');
         const descricaoInput = document.getElementById('descricao');
         const centroCustoInput = document.getElementById('centro-custo');
+        const valorInput = document.getElementById('valor');
+        const dataPagamentoInput = document.getElementById('data-pagamento');
         const pagamentoInput = document.getElementById('pagamento');
+        const pixField = document.getElementById('pix-field');
+        const pixInput = document.getElementById('pix');
+        const fornecedorInput = document.getElementById('fornecedor');
         const submitBtn = document.getElementById('submit-btn');
         const btnText = document.querySelector('.btn-text');
         const spinner = document.querySelector('.spinner');
+
+        // --- EVENT LISTENER PARA PAGAMENTO ---
+        pagamentoInput.addEventListener('change', function () {
+            if (this.value === 'Pix') {
+                pixField.classList.remove('hidden');
+            } else {
+                pixField.classList.add('hidden');
+            }
+        });
 
         // --- FUNÇÃO DE VALIDAÇÃO ---
         function validateFields() {
@@ -118,7 +153,7 @@
                 document.getElementById('error-descricao').classList.add('hidden');
                 descricaoInput.classList.remove('input-error');
             }
-            
+
             // Validação do Centro de Custo
             if (centroCustoInput.value.trim() === '') {
                 document.getElementById('error-centro-custo').classList.remove('hidden');
@@ -128,6 +163,48 @@
                 document.getElementById('error-centro-custo').classList.add('hidden');
                 centroCustoInput.classList.remove('input-error');
             }
+
+            // Validação do Valor
+            if (valorInput.value.trim() === '') {
+                document.getElementById('error-valor').classList.remove('hidden');
+                valorInput.classList.add('input-error');
+                isValid = false;
+            } else {
+                document.getElementById('error-valor').classList.add('hidden');
+                valorInput.classList.remove('input-error');
+            }
+            
+            // Validação da Data de Pagamento
+            if (dataPagamentoInput.value === '') {
+                document.getElementById('error-data-pagamento').classList.remove('hidden');
+                dataPagamentoInput.classList.add('input-error');
+                isValid = false;
+            } else {
+                document.getElementById('error-data-pagamento').classList.add('hidden');
+                dataPagamentoInput.classList.remove('input-error');
+            }
+
+            // Validação do PIX e Fornecedor se visível
+            if (pagamentoInput.value === 'Pix') {
+                if (pixInput.value.trim() === '') {
+                    document.getElementById('error-pix').classList.remove('hidden');
+                    pixInput.classList.add('input-error');
+                    isValid = false;
+                } else {
+                    document.getElementById('error-pix').classList.add('hidden');
+                    pixInput.classList.remove('input-error');
+                }
+
+                if (fornecedorInput.value.trim() === '') {
+                    document.getElementById('error-fornecedor').classList.remove('hidden');
+                    fornecedorInput.classList.add('input-error');
+                    isValid = false;
+                } else {
+                    document.getElementById('error-fornecedor').classList.add('hidden');
+                    fornecedorInput.classList.remove('input-error');
+                }
+            }
+
             return isValid;
         }
 
@@ -150,12 +227,24 @@
                     numero = "14997460689"; // Substitua pelo número para pagamentos Pix
                 }
 
+                let pixInfo = '';
+                if (tipoPagamento === 'Pix') {
+                    pixInfo = `%0A*PIX do Fornecedor:* ${pixInput.value}%0A*Nome do Fornecedor:* ${fornecedorInput.value}`;
+                }
+
+                // Formata a data para dd/mm/yyyy
+                const dataArray = dataPagamentoInput.value.split('-');
+                const dataFormatada = `${dataArray[2]}/${dataArray[1]}/${dataArray[0]}`;
+
 
                 const mensagem = `*Nova Requisição de Compra*%0A%0A` +
                     `*Solicitante:* ${nomeInput.value}%0A` +
                     `*Contato:* ${telefoneInput.value}%0A` +
                     `*Centro de Custo:* ${centroCustoInput.value}%0A` +
-                    `*Opção de Pagamento:* ${tipoPagamento}%0A%0A` +
+                    `*Valor:* R$ ${valorInput.value}%0A` +
+                    `*Data do Pagamento:* ${dataFormatada}%0A` +
+                    `*Opção de Pagamento:* ${tipoPagamento}` +
+                    `${pixInfo}%0A%0A` +
                     `*Produto(s):*%0A${descricaoInput.value}`;
 
                 const link = `https://wa.me/${numero}?text=${mensagem}`;
@@ -171,12 +260,22 @@
             }
         }
 
-        // --- MÁSCARA DE TELEFONE ---
+        // --- MÁSCARA DE TELEFONE E VALOR---
         document.addEventListener('DOMContentLoaded', function () {
             const phoneMaskOptions = {
                 mask: [{ mask: '(00) 0000-0000' }, { mask: '(00) 00000-0000' }]
             };
             IMask(telefoneInput, phoneMaskOptions);
+
+            const valueMaskOptions = {
+                mask: Number,
+                scale: 2,
+                thousandsSeparator: '.',
+                padFractionalZeros: true,
+                normalizeZeros: true,
+                radix: ','
+            };
+            IMask(valorInput, valueMaskOptions);
         });
     </script>
 </body>
