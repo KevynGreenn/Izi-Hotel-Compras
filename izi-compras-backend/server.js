@@ -1,3 +1,9 @@
+const express = require("express");
+const path = require("path");
+const app = express();
+
+app.use(express.static(path.join(__dirname, "public")));
+
 const express = require('express');
 const pkg = require('pg');
 const dotenv = require('dotenv');
@@ -6,7 +12,6 @@ const crypto = require('crypto');
 const sgMail = require('@sendgrid/mail');
 
 dotenv.config();
-const app = express();
 const PORT = process.env.PORT || 5000;
 
 const { Pool } = pkg;
@@ -32,7 +37,8 @@ async function enviarEmailAprovacao(emailDestino, token) {
         console.error("ERRO: FRONTEND_URL não está definido nas variáveis de ambiente.");
         return;
     }
-    const linkAprovacao = `https://kevyngreenn.github.io/kevyngreenn-izi-hotel-compras/aprovar.html?token=${token}`;
+    const linkAprovacao = `https://izi-hotel-api.onrender.com/aprovar.html?token=${token}`;
+
 
 
     const msg = {
