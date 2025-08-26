@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Izi Hotel - Aprovar Requisição</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        /* Estilos específicos para esta página */
+        .details-container {
+            text-align: left;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        .details-container p {
+            margin-bottom: 12px;
+            font-size: 16px;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        .details-container strong {
+            color: #8B0000;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+        }
+        .btn-approve {
+            background-color: #27ae60;
+        }
+        .btn-approve:hover {
+            background-color: #229954;
+        }
+        .btn-reject {
+            background-color: #e74c3c;
+        }
+        .btn-reject:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="card">
+        <img src="logo.png" alt="Logo Izi Hotel" class="logo">
+        <h1>Detalhes da Requisição</h1>
+
+        <div id="loading-state">
+            <p>Carregando detalhes da requisição...</p>
+        </div>
+
+        <div id="details-wrapper" class="hidden">
+            <div class="details-container">
+                <p><strong>Solicitante:</strong> <span id="detail-nome"></span></p>
+                <p><strong>Contato:</strong> <span id="detail-telefone"></span></p>
+                <p><strong>Centro de Custo:</strong> <span id="detail-centro-custo"></span></p>
+                <p><strong>Valor:</strong> R$ <span id="detail-valor"></span></p>
+                <p><strong>Data do Pagamento:</strong> <span id="detail-data-pagamento"></span></p>
+                <p><strong>Forma de Pagamento:</strong> <span id="detail-pagamento"></span></p>
+                <div id="pix-details" class="hidden">
+                     <p><strong>PIX do Fornecedor:</strong> <span id="detail-pix"></span></p>
+                     <p><strong>Nome do Fornecedor:</strong> <span id="detail-fornecedor"></span></p>
+                </div>
+                <p><strong>Descrição:</strong> <span id="detail-descricao"></span></p>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-reject" id="reject-btn">Reprovar</button>
+                <button class="btn btn-approve" id="approve-btn">Aprovar e Assinar</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Este script irá buscar e mostrar os dados da requisição
+        document.addEventListener('DOMContentLoaded', async () => {
+            const loadingState = document.getElementById('loading-state');
+            const detailsWrapper = document.getElementById('details-wrapper');
+
+            // 1. Pega o token da URL
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+
+            if (!token) {
+                loadingState.innerHTML = '<p style="color: red;">Erro: Token de requisição não encontrado na URL.</p>';
+                return;
+            }
+
+            try {
+                // 2. Chama o nosso backend para buscar os dados
+                const response = await fetch(`http://localhost:3000/api/requisicao/${token}`);
+
+                if (!response.ok) {
+                    throw new Error('Requisição não encontrada ou token inválido.');
+                }
+
+                const data = await response.json();
+
+                // 3. Preenche a página com os dados recebidos
+                document.getElementById('detail-nome').textContent = data.nome_solicitante;
+                document.getElementById('detail-telefone').textContent = data.telefone;
+                document.getElementById('detail-centro-custo').textContent = data.centro_custo;
+                document.getElementById('detail-valor').textContent = data.valor;
+
+                // Formata a data para dd/mm/yyyy
+                const dataArray = data.data_pagamento.split('T')[0].split('-');
+                const dataFormatada = `${dataArray[2]}/${dataArray[1]}/${dataArray[0]}`;
+                document.getElementById('detail-data-pagamento').textContent = dataFormatada;
+
+                document.getElementById('detail-pagamento').textContent = data.opcao_pagamento;
+                document.getElementById('detail-descricao').textContent = data.descricao;
+
+                // Mostra os campos de PIX apenas se a opção for Pix
+                if (data.opcao_pagamento === 'Pix') {
+                    document.getElementById('detail-pix').textContent = data.pix_fornecedor;
+                    document.getElementById('detail-fornecedor').textContent = data.nome_fornecedor;
+                    document.getElementById('pix-details').classList.remove('hidden');
+                }
+
+                // Esconde o "Carregando..." e mostra os detalhes
+                loadingState.classList.add('hidden');
+                detailsWrapper.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Erro ao buscar requisição:', error);
+                loadingState.innerHTML = `<p style="color: red;">${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+
+</html>

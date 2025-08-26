@@ -94,189 +94,80 @@
     <script src="https://unpkg.com/imask"></script>
 
     <script>
-        // --- ELEMENTOS ---
-        const formWrapper = document.getElementById('form-wrapper');
-        const confirmationMessage = document.getElementById('confirmation-message');
-        const nomeInput = document.getElementById('nome');
-        const telefoneInput = document.getElementById('telefone');
-        const descricaoInput = document.getElementById('descricao');
-        const centroCustoInput = document.getElementById('centro-custo');
-        const valorInput = document.getElementById('valor');
-        const dataPagamentoInput = document.getElementById('data-pagamento');
-        const pagamentoInput = document.getElementById('pagamento');
-        const pixField = document.getElementById('pix-field');
-        const pixInput = document.getElementById('pix');
-        const fornecedorInput = document.getElementById('fornecedor');
-        const submitBtn = document.getElementById('submit-btn');
-        const btnText = document.querySelector('.btn-text');
-        const spinner = document.querySelector('.spinner');
+// Pega as referências dos elementos HTML que vamos usar
+const formWrapper = document.getElementById('form-wrapper');
+const confirmationMessage = document.getElementById('confirmation-message');
+const submitBtn = document.getElementById('submit-btn');
 
-        // --- EVENT LISTENER PARA PAGAMENTO ---
-        pagamentoInput.addEventListener('change', function () {
-            if (this.value === 'Pix') {
-                pixField.classList.remove('hidden');
-            } else {
-                pixField.classList.add('hidden');
-            }
+// Adiciona um "ouvinte" ao botão de envio. A função será executada quando ele for clicado.
+submitBtn.addEventListener('click', async (event) => {
+    // Previne o comportamento padrão do botão, que seria recarregar a página.
+    event.preventDefault();
+
+    // if (!validateFields()) { return; } // Você pode manter sua função de validação aqui.
+
+    // 1. Coleta dos Dados
+    // Criamos um objeto JavaScript com todos os valores dos campos do formulário.
+    const dadosParaEnviar = {
+        nome: document.getElementById('nome').value,
+        telefone: document.getElementById('telefone').value,
+        descricao: document.getElementById('descricao').value,
+        centroCusto: document.getElementById('centro-custo').value,
+        valor: document.getElementById('valor').value,
+        dataPagamento: document.getElementById('data-pagamento').value,
+        opcaoPagamento: document.getElementById('pagamento').value,
+        pix: document.getElementById('pix').value,
+        fornecedor: document.getElementById('fornecedor').value
+    };
+
+    // 2. Feedback Visual (Spinner)
+    submitBtn.disabled = true;
+    document.querySelector('.btn-text').textContent = 'Enviando...';
+    document.querySelector('.spinner').classList.remove('hidden');
+
+    try {
+        // 3. A Requisição 'fetch'
+        // Esta é a parte principal. Estamos enviando os dados para o nosso backend.
+        const response = await fetch('http://localhost:3000/api/requisicao', {
+            method: 'POST', // O método tem que ser POST, pois estamos enviando dados.
+            headers: {
+                // Informamos ao servidor que estamos enviando dados em formato JSON.
+                'Content-Type': 'application/json',
+            },
+            // Convertemos nosso objeto JavaScript para uma string no formato JSON.
+            body: JSON.stringify(dadosParaEnviar),
         });
 
-        // --- FUNÇÃO DE VALIDAÇÃO ---
-        function validateFields() {
-            let isValid = true;
-
-            // Validação do Nome
-            if (nomeInput.value.trim() === '') {
-                document.getElementById('error-nome').classList.remove('hidden');
-                nomeInput.classList.add('input-error');
-                isValid = false;
-            } else {
-                document.getElementById('error-nome').classList.add('hidden');
-                nomeInput.classList.remove('input-error');
-            }
-
-            // Validação do Telefone
-            if (telefoneInput.value.length < 14) { // Checa o tamanho mínimo com a máscara
-                document.getElementById('error-telefone').classList.remove('hidden');
-                telefoneInput.classList.add('input-error');
-                isValid = false;
-            } else {
-                document.getElementById('error-telefone').classList.add('hidden');
-                telefoneInput.classList.remove('input-error');
-            }
-
-            // Validação da Descrição
-            if (descricaoInput.value.trim() === '') {
-                document.getElementById('error-descricao').classList.remove('hidden');
-                descricaoInput.classList.add('input-error');
-                isValid = false;
-            } else {
-                document.getElementById('error-descricao').classList.add('hidden');
-                descricaoInput.classList.remove('input-error');
-            }
-
-            // Validação do Centro de Custo
-            if (centroCustoInput.value.trim() === '') {
-                document.getElementById('error-centro-custo').classList.remove('hidden');
-                centroCustoInput.classList.add('input-error');
-                isValid = false;
-            } else {
-                document.getElementById('error-centro-custo').classList.add('hidden');
-                centroCustoInput.classList.remove('input-error');
-            }
-
-            // Validação do Valor
-            if (valorInput.value.trim() === '') {
-                document.getElementById('error-valor').classList.remove('hidden');
-                valorInput.classList.add('input-error');
-                isValid = false;
-            } else {
-                document.getElementById('error-valor').classList.add('hidden');
-                valorInput.classList.remove('input-error');
-            }
-            
-            // Validação da Data de Pagamento
-            if (dataPagamentoInput.value === '') {
-                document.getElementById('error-data-pagamento').classList.remove('hidden');
-                dataPagamentoInput.classList.add('input-error');
-                isValid = false;
-            } else {
-                document.getElementById('error-data-pagamento').classList.add('hidden');
-                dataPagamentoInput.classList.remove('input-error');
-            }
-
-            // Validação do PIX e Fornecedor se visível
-            if (pagamentoInput.value === 'Pix') {
-                if (pixInput.value.trim() === '') {
-                    document.getElementById('error-pix').classList.remove('hidden');
-                    pixInput.classList.add('input-error');
-                    isValid = false;
-                } else {
-                    document.getElementById('error-pix').classList.add('hidden');
-                    pixInput.classList.remove('input-error');
-                }
-
-                if (fornecedorInput.value.trim() === '') {
-                    document.getElementById('error-fornecedor').classList.remove('hidden');
-                    fornecedorInput.classList.add('input-error');
-                    isValid = false;
-                } else {
-                    document.getElementById('error-fornecedor').classList.add('hidden');
-                    fornecedorInput.classList.remove('input-error');
-                }
-            }
-
-            return isValid;
+        // Se a resposta do servidor não for de sucesso (ex: erro 500), nós lançamos um erro.
+        if (!response.ok) {
+            throw new Error('O servidor respondeu com um erro.');
         }
 
-        // --- FUNÇÃO DE ENVIO ---
-        function enviarWhatsApp() {
-            if (validateFields()) {
-                // Ativa o estado de carregamento
-                submitBtn.disabled = true;
-                btnText.textContent = 'Enviando...';
-                spinner.classList.remove('hidden');
+        // 4. Sucesso!
+        // Escondemos o formulário e mostramos a mensagem de confirmação.
+        formWrapper.classList.add('hidden');
+        confirmationMessage.classList.remove('hidden');
 
-                let numero;
-                const tipoPagamento = pagamentoInput.value;
+    } catch (error) {
+        // 5. Tratamento de Erro
+        console.error('Falha ao enviar a requisição:', error);
+        alert('Não foi possível enviar a requisição. Verifique sua conexão e tente novamente.');
 
-                if (tipoPagamento === 'Cartão') {
-                    numero = "14997990091"; // Substitua pelo número para pagamentos com Cartão
-                } else if (tipoPagamento === 'Faturado') {
-                    numero = "67998879733"; // Substitua pelo número para pagamentos Faturado
-                } else if (tipoPagamento === 'Pix') {
-                    numero = "14997460689"; // Substitua pelo número para pagamentos Pix
-                }
+        // Reverte o feedback visual em caso de erro
+        submitBtn.disabled = false;
+        document.querySelector('.btn-text').textContent = 'Enviar Requisição via WhatsApp';
+        document.querySelector('.spinner').classList.add('hidden');
+    }
+});
 
-                let pixInfo = '';
-                if (tipoPagamento === 'Pix') {
-                    pixInfo = `%0A*PIX do Fornecedor:* ${pixInput.value}%0A*Nome do Fornecedor:* ${fornecedorInput.value}`;
-                }
-
-                // Formata a data para dd/mm/yyyy
-                const dataArray = dataPagamentoInput.value.split('-');
-                const dataFormatada = `${dataArray[2]}/${dataArray[1]}/${dataArray[0]}`;
-
-
-                const mensagem = `*Nova Requisição de Compra*%0A%0A` +
-                    `*Solicitante:* ${nomeInput.value}%0A` +
-                    `*Contato:* ${telefoneInput.value}%0A` +
-                    `*Centro de Custo:* ${centroCustoInput.value}%0A` +
-                    `*Valor:* R$ ${valorInput.value}%0A` +
-                    `*Data do Pagamento:* ${dataFormatada}%0A` +
-                    `*Opção de Pagamento:* ${tipoPagamento}` +
-                    `${pixInfo}%0A%0A` +
-                    `*Produto(s):*%0A${descricaoInput.value}`;
-
-                const link = `https://wa.me/${numero}?text=${mensagem}`;
-
-                // Abre o WhatsApp
-                window.open(link, '_blank');
-
-                // Após um pequeno atraso, mostra a confirmação
-                setTimeout(() => {
-                    formWrapper.classList.add('hidden');
-                    confirmationMessage.classList.remove('hidden');
-                }, 500); // 0.5 segundos de atraso
-            }
-        }
-
-        // --- MÁSCARA DE TELEFONE E VALOR---
-        document.addEventListener('DOMContentLoaded', function () {
-            const phoneMaskOptions = {
-                mask: [{ mask: '(00) 0000-0000' }, { mask: '(00) 00000-0000' }]
-            };
-            IMask(telefoneInput, phoneMaskOptions);
-
-            const valueMaskOptions = {
-                mask: Number,
-                scale: 2,
-                thousandsSeparator: '.',
-                padFractionalZeros: true,
-                normalizeZeros: true,
-                radix: ','
-            };
-            IMask(valorInput, valueMaskOptions);
-        });
+// --- Mantenha aqui o resto do seu código JavaScript ---
+// (A função que mostra/esconde o campo PIX e o código do IMask para as máscaras)
+pagamentoInput.addEventListener('change', function () {
+    // ... seu código aqui ...
+});
+document.addEventListener('DOMContentLoaded', function () {
+    // ... seu código do IMask aqui ...
+});
     </script>
 </body>
 
