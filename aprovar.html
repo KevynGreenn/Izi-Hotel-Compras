@@ -2,102 +2,81 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Aprovar Requisição - Izi Hotel</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalhes da Requisição</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #400000;
-      margin: 0;
-      padding: 0;
-      color: #333;
-      text-align: center;
-    }
-    .container {
-      max-width: 600px;
-      margin: 50px auto;
       background: #fff;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
-    }
-    h1 {
-      color: #800000;
-      margin-bottom: 20px;
-    }
-    .status {
-      margin-top: 20px;
-      font-size: 1.2em;
-      color: red;
+      color: #600000;
+      text-align: center;
+      padding: 20px;
     }
     button {
       margin: 10px;
-      padding: 12px 25px;
-      font-size: 16px;
+      padding: 10px 20px;
+      background: #600000;
+      color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      background: #800000;
-      color: #fff;
-      transition: background 0.3s;
     }
     button:hover {
-      background: #a00000;
+      background: #900000;
+    }
+    #mensagem {
+      margin-top: 20px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <img src="logo.png" alt="Izi Hotel" style="width:120px; margin-bottom:20px;">
-    <h1>Detalhes da Requisição</h1>
-    <div id="detalhes"></div>
-    <div class="status" id="status"></div>
-    <button onclick="aprovar()">Aprovar</button>
-    <button onclick="rejeitar()">Rejeitar</button>
-  </div>
+  <h1>Detalhes da Requisição</h1>
+  <div id="detalhes"></div>
+  <button onclick="aprovar()">Aprovar</button>
+  <button onclick="rejeitar()">Rejeitar</button>
+  <div id="mensagem"></div>
 
   <script>
+    const API_BASE = "https://izi-hotel-compras.onrender.com"; // ajuste se precisar
     const params = new URLSearchParams(window.location.search);
-    const id = params.get("id");
     const token = params.get("token");
-
-    // 👉 TROCAR AQUI CASO SUA URL DO RENDER SEJA DIFERENTE
-    const API_BASE = "https://izi-compras-backend.onrender.com";
 
     async function carregarDetalhes() {
       try {
-        const resp = await fetch(`${API_BASE}/api/requisicoes/${id}?token=${token}`);
-        if (!resp.ok) throw new Error("Erro ao buscar detalhes");
+        const resp = await fetch(`${API_BASE}/api/requisicao/${token}`);
+        if (!resp.ok) throw new Error("Erro ao buscar requisição");
         const data = await resp.json();
-
         document.getElementById("detalhes").innerHTML = `
-          <p><strong>ID:</strong> ${data.id}</p>
-          <p><strong>Produto:</strong> ${data.produto}</p>
-          <p><strong>Quantidade:</strong> ${data.quantidade}</p>
+          <p><strong>Solicitante:</strong> ${data.solicitante}</p>
+          <p><strong>Descrição:</strong> ${data.descricao}</p>
+          <p><strong>Valor:</strong> R$ ${data.valor}</p>
           <p><strong>Status:</strong> ${data.status}</p>
         `;
-      } catch (e) {
-        document.getElementById("status").textContent = "Failed to fetch";
+      } catch (err) {
+        document.getElementById("detalhes").innerHTML = `<p style="color:red">${err.message}</p>`;
       }
     }
 
     async function aprovar() {
       try {
-        const resp = await fetch(`${API_BASE}/api/requisicoes/${id}/aprovar?token=${token}`, { method: "POST" });
-        if (!resp.ok) throw new Error("Erro ao aprovar");
-        document.getElementById("status").textContent = "Requisição aprovada com sucesso!";
-      } catch (e) {
-        document.getElementById("status").textContent = "Erro ao aprovar.";
+        const resp = await fetch(`${API_BASE}/api/requisicao/${token}/aprovar`, { method: "POST" });
+        const data = await resp.json();
+        document.getElementById("mensagem").innerText = data.message;
+        carregarDetalhes();
+      } catch (err) {
+        document.getElementById("mensagem").innerText = "Erro ao aprovar.";
       }
     }
 
     async function rejeitar() {
       try {
-        const resp = await fetch(`${API_BASE}/api/requisicoes/${id}/rejeitar?token=${token}`, { method: "POST" });
-        if (!resp.ok) throw new Error("Erro ao rejeitar");
-        document.getElementById("status").textContent = "Requisição rejeitada.";
-      } catch (e) {
-        document.getElementById("status").textContent = "Erro ao rejeitar.";
+        const resp = await fetch(`${API_BASE}/api/requisicao/${token}/rejeitar`, { method: "POST" });
+        const data = await resp.json();
+        document.getElementById("mensagem").innerText = data.message;
+        carregarDetalhes();
+      } catch (err) {
+        document.getElementById("mensagem").innerText = "Erro ao rejeitar.";
       }
     }
 
