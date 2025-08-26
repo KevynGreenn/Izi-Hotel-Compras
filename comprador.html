@@ -69,8 +69,8 @@
                 </div>
 
 
-                <button class="btn" id="submit-btn" onclick="enviarWhatsApp()">
-                    <span class="btn-text">Enviar Requisição via WhatsApp</span>
+                <button class="btn" id="submit-btn">
+                    <span class="btn-text">Enviar Requisição</span>
                     <span class="spinner hidden"></span>
                 </button>
             </div>
@@ -85,90 +85,80 @@
                 </svg>
             </div>
             <h2>Requisição Enviada!</h2>
-            <p>Sua mensagem está sendo aberta no WhatsApp. Após enviar, você pode fechar a aba.</p>
+            <p>Sua requisição foi enviada com sucesso para aprovação.</p>
             <a href="index.html" class="btn">Voltar para a Home</a>
         </div>
-
     </main>
 
     <script src="https://unpkg.com/imask"></script>
-
     <script>
-// Pega as referências dos elementos HTML que vamos usar
-const formWrapper = document.getElementById('form-wrapper');
-const confirmationMessage = document.getElementById('confirmation-message');
-const submitBtn = document.getElementById('submit-btn');
+        // --- ELEMENTOS ---
+        const formWrapper = document.getElementById('form-wrapper');
+        const confirmationMessage = document.getElementById('confirmation-message');
+        const submitBtn = document.getElementById('submit-btn');
+        const pagamentoInput = document.getElementById('pagamento');
+        const pixField = document.getElementById('pix-field');
 
-// Adiciona um "ouvinte" ao botão de envio. A função será executada quando ele for clicado.
-submitBtn.addEventListener('click', async (event) => {
-    // Previne o comportamento padrão do botão, que seria recarregar a página.
-    event.preventDefault();
-
-    // if (!validateFields()) { return; } // Você pode manter sua função de validação aqui.
-
-    // 1. Coleta dos Dados
-    // Criamos um objeto JavaScript com todos os valores dos campos do formulário.
-    const dadosParaEnviar = {
-        nome: document.getElementById('nome').value,
-        telefone: document.getElementById('telefone').value,
-        descricao: document.getElementById('descricao').value,
-        centroCusto: document.getElementById('centro-custo').value,
-        valor: document.getElementById('valor').value,
-        dataPagamento: document.getElementById('data-pagamento').value,
-        opcaoPagamento: document.getElementById('pagamento').value,
-        pix: document.getElementById('pix').value,
-        fornecedor: document.getElementById('fornecedor').value
-    };
-
-    // 2. Feedback Visual (Spinner)
-    submitBtn.disabled = true;
-    document.querySelector('.btn-text').textContent = 'Enviando...';
-    document.querySelector('.spinner').classList.remove('hidden');
-
-    try {
-        // 3. A Requisição 'fetch'
-        // Esta é a parte principal. Estamos enviando os dados para o nosso backend.
-        const response = await fetch('https://izi-hotel-api.onrender.com/', {
-            method: 'POST', // O método tem que ser POST, pois estamos enviando dados.
-            headers: {
-                // Informamos ao servidor que estamos enviando dados em formato JSON.
-                'Content-Type': 'application/json',
-            },
-            // Convertemos nosso objeto JavaScript para uma string no formato JSON.
-            body: JSON.stringify(dadosParaEnviar),
+        // --- EVENT LISTENER PARA PAGAMENTO ---
+        pagamentoInput.addEventListener('change', function () {
+            pixField.classList.toggle('hidden', this.value !== 'Pix');
         });
 
-        // Se a resposta do servidor não for de sucesso (ex: erro 500), nós lançamos um erro.
-        if (!response.ok) {
-            throw new Error('O servidor respondeu com um erro.');
-        }
+        // --- FUNÇÃO DE ENVIO PARA O BACKEND ---
+        submitBtn.addEventListener('click', async (event) => {
+            event.preventDefault();
 
-        // 4. Sucesso!
-        // Escondemos o formulário e mostramos a mensagem de confirmação.
-        formWrapper.classList.add('hidden');
-        confirmationMessage.classList.remove('hidden');
+            const dadosRequisicao = {
+                nome: document.getElementById('nome').value,
+                telefone: document.getElementById('telefone').value,
+                descricao: document.getElementById('descricao').value,
+                centroCusto: document.getElementById('centro-custo').value,
+                valor: document.getElementById('valor').value.replace(/\./g, '').replace(',', '.'),
+                dataPagamento: document.getElementById('data-pagamento').value,
+                opcaoPagamento: document.getElementById('pagamento').value,
+                pix: document.getElementById('pix').value,
+                fornecedor: document.getElementById('fornecedor').value
+            };
 
-    } catch (error) {
-        // 5. Tratamento de Erro
-        console.error('Falha ao enviar a requisição:', error);
-        alert('Não foi possível enviar a requisição. Verifique sua conexão e tente novamente.');
+            submitBtn.disabled = true;
+            document.querySelector('.btn-text').textContent = 'Enviando...';
+            document.querySelector('.spinner').classList.remove('hidden');
 
-        // Reverte o feedback visual em caso de erro
-        submitBtn.disabled = false;
-        document.querySelector('.btn-text').textContent = 'Enviar Requisição via WhatsApp';
-        document.querySelector('.spinner').classList.add('hidden');
-    }
-});
+            try {
+                const response = await fetch('https://izi-hotel-api.onrender.com/api/requisicao', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dadosRequisicao)
+                });
 
-// --- Mantenha aqui o resto do seu código JavaScript ---
-// (A função que mostra/esconde o campo PIX e o código do IMask para as máscaras)
-pagamentoInput.addEventListener('change', function () {
-    // ... seu código aqui ...
-});
-document.addEventListener('DOMContentLoaded', function () {
-    // ... seu código do IMask aqui ...
-});
+                if (!response.ok) {
+                    throw new Error('Falha ao enviar requisição para o servidor.');
+                }
+
+                formWrapper.classList.add('hidden');
+                confirmationMessage.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Ocorreu um erro ao enviar sua requisição. Tente novamente.');
+                submitBtn.disabled = false;
+                document.querySelector('.btn-text').textContent = 'Enviar Requisição';
+                document.querySelector('.spinner').classList.add('hidden');
+            }
+        });
+
+        // --- MÁSCARAS ---
+        document.addEventListener('DOMContentLoaded', function () {
+            IMask(document.getElementById('telefone'), { mask: [{ mask: '(00) 0000-0000' }, { mask: '(00) 00000-0000' }] });
+            IMask(document.getElementById('valor'), {
+                mask: Number,
+                scale: 2,
+                thousandsSeparator: '.',
+                padFractionalZeros: true,
+                normalizeZeros: true,
+                radix: ','
+            });
+        });
     </script>
 </body>
-
 </html>

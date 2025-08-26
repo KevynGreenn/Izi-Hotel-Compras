@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="logo.png">
     <style>
-        /* Estilos específicos para esta página */
         .details-container {
             text-align: left;
             width: 100%;
@@ -76,12 +75,10 @@
     </main>
 
     <script>
-        // Este script irá buscar e mostrar os dados da requisição
         document.addEventListener('DOMContentLoaded', async () => {
             const loadingState = document.getElementById('loading-state');
             const detailsWrapper = document.getElementById('details-wrapper');
-
-            // 1. Pega o token da URL
+            
             const params = new URLSearchParams(window.location.search);
             const token = params.get('token');
 
@@ -91,22 +88,19 @@
             }
 
             try {
-                // 2. Chama o nosso backend para buscar os dados
-                const response = await fetch(`https://izi-hotel-api.onrender.com/${token}`);
+                const response = await fetch(`https://izi-hotel-api.onrender.com/api/requisicao/${token}`);
 
                 if (!response.ok) {
                     throw new Error('Requisição não encontrada ou token inválido.');
                 }
 
                 const data = await response.json();
-
-                // 3. Preenche a página com os dados recebidos
+                
                 document.getElementById('detail-nome').textContent = data.nome_solicitante;
                 document.getElementById('detail-telefone').textContent = data.telefone;
                 document.getElementById('detail-centro-custo').textContent = data.centro_custo;
                 document.getElementById('detail-valor').textContent = data.valor;
-
-                // Formata a data para dd/mm/yyyy
+                
                 const dataArray = data.data_pagamento.split('T')[0].split('-');
                 const dataFormatada = `${dataArray[2]}/${dataArray[1]}/${dataArray[0]}`;
                 document.getElementById('detail-data-pagamento').textContent = dataFormatada;
@@ -114,14 +108,12 @@
                 document.getElementById('detail-pagamento').textContent = data.opcao_pagamento;
                 document.getElementById('detail-descricao').textContent = data.descricao;
 
-                // Mostra os campos de PIX apenas se a opção for Pix
                 if (data.opcao_pagamento === 'Pix') {
                     document.getElementById('detail-pix').textContent = data.pix_fornecedor;
                     document.getElementById('detail-fornecedor').textContent = data.nome_fornecedor;
                     document.getElementById('pix-details').classList.remove('hidden');
                 }
 
-                // Esconde o "Carregando..." e mostra os detalhes
                 loadingState.classList.add('hidden');
                 detailsWrapper.classList.remove('hidden');
 
@@ -132,5 +124,4 @@
         });
     </script>
 </body>
-
 </html>
