@@ -6,69 +6,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Izi Hotel - Requisição</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
-        rel="stylesheet">
     <link rel="icon" type="image/png" href="logo.png">
 </head>
 
 <body>
     <main class="card">
         <img src="logo.png" alt="Logo Izi Hotel" class="logo">
-
         <div id="form-wrapper">
             <div class="form-container">
                 <label for="nome">Nome Completo</label>
                 <input type="text" id="nome" placeholder="Seu nome aqui">
-                <span class="error-message hidden" id="error-nome">Por favor, preencha seu nome.</span>
-
                 <label for="telefone">Telefone (WhatsApp)</label>
                 <input type="text" id="telefone" placeholder="(XX) XXXXX-XXXX">
-                <span class="error-message hidden" id="error-telefone">Por favor, preencha um telefone válido.</span>
-
                 <label for="descricao">Descrição detalhada da compra</label>
-                <textarea id="descricao" rows="5"
-                    placeholder="Ex: 10 caixas de caneta azul, marca BIC, ponta fina."></textarea>
-                <span class="error-message hidden" id="error-descricao">Por favor, descreva o produto.</span>
-
-                <p class="aviso"><strong>Atenção:</strong> Por favor, seja o mais detalhado possível na descrição para
-                    que sua solicitação seja atendida corretamente.</p>
-
+                <textarea id="descricao" rows="5" placeholder="Ex: 10 caixas de caneta azul..."></textarea>
+                <p class="aviso"><strong>Atenção:</strong> Por favor, seja o mais detalhado possível.</p>
                 <label for="centro-custo">Centro de Custo</label>
                 <input type="text" id="centro-custo" placeholder="Ex: Izi Express">
-                <span class="error-message hidden" id="error-centro-custo">Por favor, preencha o centro de
-                    custo.</span>
-
                 <label for="valor">Valor do Produto (R$)</label>
                 <input type="text" id="valor" placeholder="Ex: 150,00">
-                <span class="error-message hidden" id="error-valor">Por favor, preencha o valor do produto.</span>
-
                 <label for="data-pagamento">Data do Pagamento</label>
                 <input type="date" id="data-pagamento">
-                <span class="error-message hidden" id="error-data-pagamento">Por favor, selecione a data do
-                    pagamento.</span>
-
                 <label for="pagamento">Opção de Pagamento</label>
                 <select id="pagamento">
                     <option value="Cartão">Cartão</option>
                     <option value="Faturado">Faturado</option>
                     <option value="Pix">Pix</option>
                 </select>
-
                 <div id="pix-field" class="hidden">
                     <label for="pix">PIX do Fornecedor</label>
                     <input type="text" id="pix" placeholder="Chave PIX do fornecedor">
-                    <span class="error-message hidden" id="error-pix">Por favor, preencha a chave PIX.</span>
-
                     <label for="fornecedor">Nome do Fornecedor</label>
                     <input type="text" id="fornecedor" placeholder="Nome do fornecedor">
-                    <span class="error-message hidden" id="error-fornecedor">Por favor, preencha o nome do
-                        fornecedor.</span>
                 </div>
-
-
                 <button class="btn" id="submit-btn">
                     <span class="btn-text">Enviar Requisição</span>
                     <span class="spinner hidden"></span>
@@ -76,7 +46,6 @@
             </div>
             <a href="index.html" class="back-link">Voltar para a Home</a>
         </div>
-
         <div id="confirmation-message" class="hidden">
             <div class="success-animation">
                 <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
@@ -89,25 +58,20 @@
             <a href="index.html" class="btn">Voltar para a Home</a>
         </div>
     </main>
-
     <script src="https://unpkg.com/imask"></script>
     <script>
-        // --- ELEMENTOS ---
         const formWrapper = document.getElementById('form-wrapper');
         const confirmationMessage = document.getElementById('confirmation-message');
         const submitBtn = document.getElementById('submit-btn');
         const pagamentoInput = document.getElementById('pagamento');
         const pixField = document.getElementById('pix-field');
 
-        // --- EVENT LISTENER PARA PAGAMENTO ---
-        pagamentoInput.addEventListener('change', function () {
-            pixField.classList.toggle('hidden', this.value !== 'Pix');
+        pagamentoInput.addEventListener('change', () => {
+            pixField.classList.toggle('hidden', pagamentoInput.value !== 'Pix');
         });
 
-        // --- FUNÇÃO DE ENVIO PARA O BACKEND ---
         submitBtn.addEventListener('click', async (event) => {
             event.preventDefault();
-
             const dadosRequisicao = {
                 nome: document.getElementById('nome').value,
                 telefone: document.getElementById('telefone').value,
@@ -125,19 +89,14 @@
             document.querySelector('.spinner').classList.remove('hidden');
 
             try {
-                const response = await fetch('https://izi-hotel-compras.onrender.com/api/requisicao', {
+                const response = await fetch('https://izi-hotel-api.onrender.com/api/requisicao', { // URL CORRIGIDA
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dadosRequisicao)
                 });
-
-                if (!response.ok) {
-                    throw new Error('Falha ao enviar requisição para o servidor.');
-                }
-
+                if (!response.ok) throw new Error('Falha ao enviar requisição para o servidor.');
                 formWrapper.classList.add('hidden');
                 confirmationMessage.classList.remove('hidden');
-
             } catch (error) {
                 console.error('Erro:', error);
                 alert('Ocorreu um erro ao enviar sua requisição. Tente novamente.');
@@ -147,16 +106,10 @@
             }
         });
 
-        // --- MÁSCARAS ---
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', () => {
             IMask(document.getElementById('telefone'), { mask: [{ mask: '(00) 0000-0000' }, { mask: '(00) 00000-0000' }] });
             IMask(document.getElementById('valor'), {
-                mask: Number,
-                scale: 2,
-                thousandsSeparator: '.',
-                padFractionalZeros: true,
-                normalizeZeros: true,
-                radix: ','
+                mask: Number, scale: 2, thousandsSeparator: '.', padFractionalZeros: true, normalizeZeros: true, radix: ','
             });
         });
     </script>
