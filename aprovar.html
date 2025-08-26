@@ -46,7 +46,7 @@
         </div>
     </main>
     <script>
-        const API_BASE = "https://izi-hotel-api.onrender.com"; // VERIFIQUE SE ESTE É O URL CORRETO DA SUA API
+        const API_BASE = "https://izi-hotel-api.onrender.com"; // URL CORRETO DA SUA API
         const params = new URLSearchParams(window.location.search);
         const token = params.get("token");
 
@@ -79,7 +79,6 @@
                 
                 const data = await response.json();
                 
-                // ### CORREÇÃO APLICADA AQUI PARA USAR OS NOMES CORRETOS DO BANCO DE DADOS ###
                 document.getElementById('detail-status').textContent = data.status;
                 document.getElementById('detail-nome').textContent = data.nome_solicitante;
                 document.getElementById('detail-telefone').textContent = data.telefone;
@@ -102,7 +101,6 @@
 
                 loadingDiv.classList.add('hidden');
                 contentDiv.classList.remove('hidden');
-
             } catch (err) {
                 loadingDiv.innerHTML = `<h1>${err.message}</h1>`;
             }

@@ -28,6 +28,10 @@ app.use(express.json());
 async function enviarEmailAprovacao(emailDestino, token) {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     const frontendUrl = process.env.FRONTEND_URL;
+    if (!frontendUrl) {
+        console.error("ERRO: FRONTEND_URL não está definido nas variáveis de ambiente.");
+        return;
+    }
     const linkAprovacao = `${frontendUrl}/aprovar.html?token=${token}`;
 
     const msg = {
@@ -57,7 +61,7 @@ app.post('/api/requisicao', async (req, res) => {
     const result = await pool.query(query, [nome, telefone, descricao, centroCusto, valor, dataPagamento, opcaoPagamento, pix, fornecedor, token]);
 
     const approverEmail = process.env.APPROVER_EMAIL;
-    if (approverEmail && process.env.FRONTEND_URL) {
+    if (approverEmail) {
         await enviarEmailAprovacao(approverEmail, token);
     }
     
