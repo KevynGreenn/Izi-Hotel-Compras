@@ -92,7 +92,7 @@
 
             try {
                 // 2. Chama o nosso backend para buscar os dados
-                const response = await fetch(`https://izi-hotel-api.onrender.com${token}`);
+                const response = await fetch(`https://izi-hotel-api.onrender.com/${token}`);
 
                 if (!response.ok) {
                     throw new Error('Requisição não encontrada ou token inválido.');
