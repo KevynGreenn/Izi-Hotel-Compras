@@ -46,10 +46,12 @@
         </div>
     </main>
     <script>
-        const API_BASE = "https://izi-hotel-api.onrender.com"; // URL CORRETO DA SUA API
+        // ### CORREÇÃO APLICADA AQUI ###
+        const API_BASE = "https://izi-hotel-api.onrender.com";
         const params = new URLSearchParams(window.location.search);
         const token = params.get("token");
 
+        // Resto do script continua igual...
         const loadingDiv = document.getElementById('loading-state');
         const contentDiv = document.getElementById('content-wrapper');
         const statusMessage = document.getElementById('status-message');
