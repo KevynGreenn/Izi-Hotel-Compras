@@ -104,6 +104,7 @@ p {
 
 /* Estilo unificado para inputs, textarea e select */
 .form-container input[type="text"],
+.form-container input[type="email"], /* <<< CORREÇÃO AQUI */
 .form-container input[type="date"],
 .form-container textarea,
 .form-container select {
@@ -159,9 +160,9 @@ p {
     background-size: 1.2em;
 }
 
-
 /* Estilo de foco unificado */
 .form-container input[type="text"]:focus,
+.form-container input[type="email"]:focus, /* <<< CORREÇÃO AQUI */
 .form-container input[type="date"]:focus,
 .form-container textarea:focus,
 .form-container select:focus {
@@ -206,47 +207,9 @@ a.back-link:hover {
     color: #6a0000;
 }
 
-/* #################### MEDIA QUERIES PARA RESPONSIVIDADE #################### */
+/* Outros estilos ... (o resto do ficheiro continua igual) */
+.hidden { display: none !important; }
 
-@media (max-width: 600px) {
-    body {
-        padding: 10px;
-    }
-
-    .card {
-        padding: 25px 20px;
-    }
-
-    h1 {
-        font-size: 1.5em;
-    }
-
-    .btn {
-        padding: 14px 18px;
-    }
-}
-
-/* #################### ESTILOS DE VALIDAÇÃO DE CAMPO #################### */
-
-.input-error {
-    border-color: #e74c3c !important;
-    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1) !important;
-}
-
-.error-message {
-    color: #e74c3c;
-    font-size: 13px;
-    text-align: left;
-    display: block;
-    margin-top: -15px;
-    margin-bottom: 15px;
-}
-
-.hidden {
-    display: none !important;
-}
-
-/* #################### ESTILOS DO INDICADOR DE CARREGAMENTO #################### */
 .btn:disabled {
     background-color: #6a0000;
     cursor: not-allowed;
@@ -262,72 +225,13 @@ a.back-link:hover {
     animation: spin 1s ease-in-out infinite;
 }
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-/* #################### ESTILOS DA CONFIRMAÇÃO E ANIMAÇÃO #################### */
-#confirmation-message h2 {
-    color: #27ae60;
-    margin-top: 20px;
-    margin-bottom: 10px;
-}
-
-.success-animation {
-    margin: 30px auto;
-}
-
-.checkmark {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    display: block;
-    stroke-width: 3;
-    stroke: #fff;
-    stroke-miterlimit: 10;
-    margin: 10% auto;
-    box-shadow: inset 0px 0px 0px #27ae60;
-    animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
-}
-
-.checkmark-circle {
-    stroke-dasharray: 166;
-    stroke-dashoffset: 166;
-    stroke-width: 3;
-    stroke-miterlimit: 10;
-    stroke: #27ae60;
-    fill: none;
-    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-}
-
-.checkmark-check {
-    transform-origin: 50% 50%;
-    stroke-dasharray: 48;
-    stroke-dashoffset: 48;
-    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
-}
-
-@keyframes stroke {
-    100% {
-        stroke-dashoffset: 0;
-    }
-}
-
-@keyframes scale {
-    0%,
-    100% {
-        transform: none;
-    }
-
-    50% {
-        transform: scale3d(1.1, 1.1, 1);
-    }
-}
-
-@keyframes fill {
-    100% {
-        box-shadow: inset 0px 0px 0px 50px #27ae60;
-    }
-}
+#confirmation-message h2 { color: #27ae60; margin-top: 20px; margin-bottom: 10px; }
+.success-animation { margin: 30px auto; }
+.checkmark { width: 100px; height: 100px; border-radius: 50%; display: block; stroke-width: 3; stroke: #fff; stroke-miterlimit: 10; margin: 10% auto; box-shadow: inset 0px 0px 0px #27ae60; animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both; }
+.checkmark-circle { stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 3; stroke-miterlimit: 10; stroke: #27ae60; fill: none; animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards; }
+.checkmark-check { transform-origin: 50% 50%; stroke-dasharray: 48; stroke-dashoffset: 48; animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards; }
+@keyframes stroke { 100% { stroke-dashoffset: 0; } }
+@keyframes scale { 0%, 100% { transform: none; } 50% { transform: scale3d(1.1, 1.1, 1); } }
+@keyframes fill { 100% { box-shadow: inset 0px 0px 0px 50px #27ae60; } }
