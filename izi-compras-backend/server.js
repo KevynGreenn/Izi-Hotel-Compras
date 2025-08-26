@@ -32,7 +32,8 @@ async function enviarEmailAprovacao(emailDestino, token) {
         console.error("ERRO: FRONTEND_URL não está definido nas variáveis de ambiente.");
         return;
     }
-    const linkAprovacao = `${frontendUrl}/aprovar.html?token=${token}`;
+    const linkAprovacao = `https://kevyngreenn.github.io/kevyngreenn-izi-hotel-compras/aprovar.html?token=${token}`;
+
 
     const msg = {
         to: emailDestino,
