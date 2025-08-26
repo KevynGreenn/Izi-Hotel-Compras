@@ -125,7 +125,7 @@
             document.querySelector('.spinner').classList.remove('hidden');
 
             try {
-                const response = await fetch('https://izi-hotel-api.onrender.com/api/requisicao', {
+                const response = await fetch('https://izi-hotel-compras.onrender.com/api/requisicao', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dadosRequisicao)
