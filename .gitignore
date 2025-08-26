@@ -1,0 +1,11 @@
+# Pasta de dependências do Node.js (nunca deve ser enviada)
+node_modules
+izi-compras-backend/node_modules
+
+# Ficheiros de variáveis de ambiente que contêm os seus segredos
+.env
+izi-compras-backend/.env
+
+# Ficheiros de log e cache do npm
+npm-debug.log
+.eslintcache
