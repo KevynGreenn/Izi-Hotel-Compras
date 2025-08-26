@@ -36,7 +36,7 @@
                     <p><strong>PIX Fornecedor:</strong> <span id="detail-pix"></span></p>
                     <p><strong>Nome Fornecedor:</strong> <span id="detail-fornecedor"></span></p>
                 </div>
-                <p><strong>Descrição:</strong><br><span id="detail-descricao"></span></p>
+                <p><strong>Descrição:</strong><br><span id="detail-descricao" style="white-space: pre-wrap;"></span></p>
             </div>
             <div class="action-buttons">
                 <button class="btn btn-reject" id="reject-btn">Rejeitar</button>
@@ -46,7 +46,7 @@
         </div>
     </main>
     <script>
-        const API_BASE = "https://izi-hotel-api.onrender.com"; // URL CORRIGIDA
+        const API_BASE = "https://izi-hotel-api.onrender.com"; // VERIFIQUE SE ESTE É O URL CORRETO DA SUA API
         const params = new URLSearchParams(window.location.search);
         const token = params.get("token");
 
@@ -58,10 +58,10 @@
             try {
                 const response = await fetch(`${API_BASE}/api/requisicao/${token}/${action}`, { method: "POST" });
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.message || 'Erro ao atualizar status.');
+                if (!response.ok) throw new Error(data.message || `Erro ao ${action}.`);
                 statusMessage.textContent = data.message;
                 statusMessage.style.color = action === 'aprovar' ? '#27ae60' : '#e74c3c';
-                loadRequestDetails(); // Recarrega os detalhes para mostrar o novo status
+                loadRequestDetails();
             } catch (error) {
                 statusMessage.textContent = error.message;
                 statusMessage.style.color = '#e74c3c';
@@ -70,7 +70,7 @@
 
         async function loadRequestDetails() {
             if (!token) {
-                loadingDiv.innerHTML = '<h1>Erro: Token não encontrado.</h1>';
+                loadingDiv.innerHTML = '<h1>Erro: Token não encontrado na URL.</h1>';
                 return;
             }
             try {
@@ -79,13 +79,18 @@
                 
                 const data = await response.json();
                 
+                // ### CORREÇÃO APLICADA AQUI PARA USAR OS NOMES CORRETOS DO BANCO DE DADOS ###
                 document.getElementById('detail-status').textContent = data.status;
                 document.getElementById('detail-nome').textContent = data.nome_solicitante;
                 document.getElementById('detail-telefone').textContent = data.telefone;
                 document.getElementById('detail-centro-custo').textContent = data.centro_custo;
                 document.getElementById('detail-valor').textContent = data.valor;
-                const dataArray = data.data_pagamento.split('T')[0].split('-');
-                document.getElementById('detail-data-pagamento').textContent = `${dataArray[2]}/${dataArray[1]}/${dataArray[0]}`;
+                
+                if (data.data_pagamento) {
+                    const dataArray = data.data_pagamento.split('T')[0].split('-');
+                    document.getElementById('detail-data-pagamento').textContent = `${dataArray[2]}/${dataArray[1]}/${dataArray[0]}`;
+                }
+
                 document.getElementById('detail-pagamento').textContent = data.opcao_pagamento;
                 document.getElementById('detail-descricao').textContent = data.descricao;
                 
