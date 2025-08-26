@@ -15,7 +15,13 @@ const app = express();
 // A Render define a porta através de uma variável de ambiente, por isso usamos `process.env.PORT`
 const port = process.env.PORT || 3000;
 app.use(express.json());
-app.use(cors());
+// Configuração do CORS mais específica para produção
+const corsOptions = {
+  origin: 'https://kevyngreenn.github.io', // Permite APENAS requisições vindas do seu site
+  optionsSuccessStatus: 200 // Para compatibilidade com navegadores mais antigos
+};
+
+app.use(cors(corsOptions));
 
 // --- CORREÇÃO 1: Conexão com o Banco de Dados Universal ---
 // Este novo código primeiro tenta usar a DATABASE_URL (que a Render fornece).
