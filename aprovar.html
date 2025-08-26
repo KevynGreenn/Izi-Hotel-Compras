@@ -1,127 +1,107 @@
 <!DOCTYPE html>
-<html lang="pt-br">
-
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Izi Hotel - Aprovar Requisição</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/png" href="logo.png">
-    <style>
-        .details-container {
-            text-align: left;
-            width: 100%;
-            margin-bottom: 30px;
-        }
-        .details-container p {
-            margin-bottom: 12px;
-            font-size: 16px;
-            color: #333;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 8px;
-        }
-        .details-container strong {
-            color: #8B0000;
-        }
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            width: 100%;
-        }
-        .btn-approve {
-            background-color: #27ae60;
-        }
-        .btn-approve:hover {
-            background-color: #229954;
-        }
-        .btn-reject {
-            background-color: #e74c3c;
-        }
-        .btn-reject:hover {
-            background-color: #c0392b;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Aprovar Requisição - Izi Hotel</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #400000;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      text-align: center;
+    }
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+    }
+    h1 {
+      color: #800000;
+      margin-bottom: 20px;
+    }
+    .status {
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: red;
+    }
+    button {
+      margin: 10px;
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #800000;
+      color: #fff;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #a00000;
+    }
+  </style>
 </head>
-
 <body>
-    <main class="card">
-        <img src="logo.png" alt="Logo Izi Hotel" class="logo">
-        <h1>Detalhes da Requisição</h1>
+  <div class="container">
+    <img src="logo.png" alt="Izi Hotel" style="width:120px; margin-bottom:20px;">
+    <h1>Detalhes da Requisição</h1>
+    <div id="detalhes"></div>
+    <div class="status" id="status"></div>
+    <button onclick="aprovar()">Aprovar</button>
+    <button onclick="rejeitar()">Rejeitar</button>
+  </div>
 
-        <div id="loading-state">
-            <p>Carregando detalhes da requisição...</p>
-        </div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    const token = params.get("token");
 
-        <div id="details-wrapper" class="hidden">
-            <div class="details-container">
-                <p><strong>Solicitante:</strong> <span id="detail-nome"></span></p>
-                <p><strong>Contato:</strong> <span id="detail-telefone"></span></p>
-                <p><strong>Centro de Custo:</strong> <span id="detail-centro-custo"></span></p>
-                <p><strong>Valor:</strong> R$ <span id="detail-valor"></span></p>
-                <p><strong>Data do Pagamento:</strong> <span id="detail-data-pagamento"></span></p>
-                <p><strong>Forma de Pagamento:</strong> <span id="detail-pagamento"></span></p>
-                <div id="pix-details" class="hidden">
-                     <p><strong>PIX do Fornecedor:</strong> <span id="detail-pix"></span></p>
-                     <p><strong>Nome do Fornecedor:</strong> <span id="detail-fornecedor"></span></p>
-                </div>
-                <p><strong>Descrição:</strong> <span id="detail-descricao"></span></p>
-            </div>
+    // 👉 TROCAR AQUI CASO SUA URL DO RENDER SEJA DIFERENTE
+    const API_BASE = "https://izi-compras-backend.onrender.com";
 
-            <div class="action-buttons">
-                <button class="btn btn-reject" id="reject-btn">Reprovar</button>
-                <button class="btn btn-approve" id="approve-btn">Aprovar e Assinar</button>
-            </div>
-        </div>
-    </main>
+    async function carregarDetalhes() {
+      try {
+        const resp = await fetch(`${API_BASE}/api/requisicoes/${id}?token=${token}`);
+        if (!resp.ok) throw new Error("Erro ao buscar detalhes");
+        const data = await resp.json();
 
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const loadingState = document.getElementById('loading-state');
-            const detailsWrapper = document.getElementById('details-wrapper');
-            
-            const params = new URLSearchParams(window.location.search);
-            const token = params.get('token');
+        document.getElementById("detalhes").innerHTML = `
+          <p><strong>ID:</strong> ${data.id}</p>
+          <p><strong>Produto:</strong> ${data.produto}</p>
+          <p><strong>Quantidade:</strong> ${data.quantidade}</p>
+          <p><strong>Status:</strong> ${data.status}</p>
+        `;
+      } catch (e) {
+        document.getElementById("status").textContent = "Failed to fetch";
+      }
+    }
 
-            if (!token) {
-                loadingState.innerHTML = '<p style="color: red;">Erro: Token de requisição não encontrado na URL.</p>';
-                return;
-            }
+    async function aprovar() {
+      try {
+        const resp = await fetch(`${API_BASE}/api/requisicoes/${id}/aprovar?token=${token}`, { method: "POST" });
+        if (!resp.ok) throw new Error("Erro ao aprovar");
+        document.getElementById("status").textContent = "Requisição aprovada com sucesso!";
+      } catch (e) {
+        document.getElementById("status").textContent = "Erro ao aprovar.";
+      }
+    }
 
-            try {
-                const response = await fetch(`https://izi-hotel-api.onrender.com/api/requisicao/${token}`);
+    async function rejeitar() {
+      try {
+        const resp = await fetch(`${API_BASE}/api/requisicoes/${id}/rejeitar?token=${token}`, { method: "POST" });
+        if (!resp.ok) throw new Error("Erro ao rejeitar");
+        document.getElementById("status").textContent = "Requisição rejeitada.";
+      } catch (e) {
+        document.getElementById("status").textContent = "Erro ao rejeitar.";
+      }
+    }
 
-                if (!response.ok) {
-                    throw new Error('Requisição não encontrada ou token inválido.');
-                }
-
-                const data = await response.json();
-                
-                document.getElementById('detail-nome').textContent = data.nome_solicitante;
-                document.getElementById('detail-telefone').textContent = data.telefone;
-                document.getElementById('detail-centro-custo').textContent = data.centro_custo;
-                document.getElementById('detail-valor').textContent = data.valor;
-                
-                const dataArray = data.data_pagamento.split('T')[0].split('-');
-                const dataFormatada = `${dataArray[2]}/${dataArray[1]}/${dataArray[0]}`;
-                document.getElementById('detail-data-pagamento').textContent = dataFormatada;
-
-                document.getElementById('detail-pagamento').textContent = data.opcao_pagamento;
-                document.getElementById('detail-descricao').textContent = data.descricao;
-
-                if (data.opcao_pagamento === 'Pix') {
-                    document.getElementById('detail-pix').textContent = data.pix_fornecedor;
-                    document.getElementById('detail-fornecedor').textContent = data.nome_fornecedor;
-                    document.getElementById('pix-details').classList.remove('hidden');
-                }
-
-                loadingState.classList.add('hidden');
-                detailsWrapper.classList.remove('hidden');
-
-            } catch (error) {
-                console.error('Erro ao buscar requisição:', error);
-                loadingState.innerHTML = `<p style="color: red;">${error.message}</p>`;
-            }
-        });
-    </script>
+    carregarDetalhes();
+  </script>
 </body>
 </html>
