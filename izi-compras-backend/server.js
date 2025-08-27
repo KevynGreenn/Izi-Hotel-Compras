@@ -20,8 +20,8 @@ const pool = new Pool({
 
 // Configuração do CORS que permite o acesso do seu site
 const corsOptions = {
-    origin: "https://kevyngreenn.github.io",
-    optionsSuccessStatus: 200
+  origin: "https://kevyngreenn.github.io",
+  optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -30,18 +30,18 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // --- NOVA FUNÇÃO DE E-MAIL PARA O ADMIN ---
 async function enviarEmailConfirmacaoAdmin(requisicao) {
-    const adminEmail = "kevynwpantunes2@gmail.com";
-    
-    let dataFormatada = 'N/A';
-    if (requisicao.data_pagamento) {
-        const data = new Date(requisicao.data_pagamento);
-        const dataUTC = new Date(data.valueOf() + data.getTimezoneOffset() * 60000);
-        dataFormatada = dataUTC.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    }
+  const adminEmail = "kevynwpantunes2@gmail.com";
 
-    const detalhesHtml = `
+  let dataFormatada = 'N/A';
+  if (requisicao.data_pagamento) {
+    const data = new Date(requisicao.data_pagamento);
+    const dataUTC = new Date(data.valueOf() + data.getTimezoneOffset() * 60000);
+    dataFormatada = dataUTC.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  const detalhesHtml = `
         <ul style="list-style-type: none; padding: 0; font-family: sans-serif; color: #333;">
-            <li style="margin-bottom: 10px;"><strong>ID da Requisição:</strong> #${requisicao.token.substring(0,6)}</li>
+            <li style="margin-bottom: 10px;"><strong>ID da Requisição:</strong> #${requisicao.token.substring(0, 6)}</li>
             <li style="margin-bottom: 10px;"><strong>Status:</strong> <span style="color: green; font-weight: bold;">${requisicao.status}</span></li>
             <li style="margin-bottom: 10px;"><strong>Solicitante:</strong> ${requisicao.nome_solicitante || 'N/A'}</li>
             <li style="margin-bottom: 10px;"><strong>Contato:</strong> ${requisicao.telefone || 'N/A'}</li>
@@ -58,22 +58,22 @@ async function enviarEmailConfirmacaoAdmin(requisicao) {
         <p style="white-space: pre-wrap; border: 1px solid #ddd; padding: 10px; border-radius: 5px; background-color: #f9f9f9;">${requisicao.descricao || 'N/A'}</p>
     `;
 
-    const msg = {
-        to: adminEmail,
-        from: 'kevynwpantunes2@gmail.com', // SEU E-MAIL VERIFICADO NO SENDGRID
-        subject: `Requisição Aprovada: #${requisicao.token.substring(0,6)} - ${requisicao.nome_solicitante}`,
-        html: `
+  const msg = {
+    to: adminEmail,
+    from: 'kevynwpantunes2@gmail.com', // SEU E-MAIL VERIFICADO NO SENDGRID
+    subject: `Requisição Aprovada: #${requisicao.token.substring(0, 6)} - ${requisicao.nome_solicitante}`,
+    html: `
             <p>A seguinte requisição de compra foi <strong>APROVADA</strong>:</p>
             ${detalhesHtml}
         `,
-    };
+  };
 
-    try {
-        await sgMail.send(msg);
-        console.log(`E-mail de confirmação de aprovação enviado para ${adminEmail}`);
-    } catch (error) {
-        console.error('Erro ao enviar e-mail de confirmação:', error.response ? error.response.body : error);
-    }
+  try {
+    await sgMail.send(msg);
+    console.log(`E-mail de confirmação de aprovação enviado para ${adminEmail}`);
+  } catch (error) {
+    console.error('Erro ao enviar e-mail de confirmação:', error.response ? error.response.body : error);
+  }
 }
 
 // --- ROTAS DA API ---
@@ -89,9 +89,9 @@ app.post('/api/requisicao', async (req, res) => {
     const result = await pool.query(query, [nome, email, telefone, descricao, centroCusto, valor, dataPagamento, opcaoPagamento, pix, fornecedor, token]);
 
     // Retorna o token e o URL do frontend para o comprador.html montar o link do WhatsApp
-    res.status(201).json({ 
-        token: result.rows[0].token,
-        frontend_url: process.env.FRONTEND_URL 
+    res.status(201).json({
+      token: result.rows[0].token,
+      frontend_url: process.env.FRONTEND_URL
     });
   } catch (error) {
     console.error('Erro ao criar requisição:', error);
@@ -122,7 +122,7 @@ app.post('/api/requisicao/:token/aprovar', async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Requisição não encontrada.' });
     }
-    
+
     // Envia o e-mail detalhado para o admin APENAS na aprovação
     await enviarEmailConfirmacaoAdmin(result.rows[0]);
 
