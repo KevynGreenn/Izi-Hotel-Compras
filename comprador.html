@@ -107,16 +107,21 @@
                 const token = data.token; // Pega o token retornado pelo servidor
                 const numeroWhatsApp = "67992007055";
 
+                // --- INÍCIO DA CORREÇÃO ---
+
                 // Passo 2: Monta o link de aprovação
                 const linkAprovacao = `${data.frontend_url}/aprovar.html?token=${token}`;
                 
-                // Passo 3: Monta a mensagem do WhatsApp
-                const mensagem = `*Nova Requisição de Compra*%0A%0A` +
-                    `*Solicitante:* ${dadosRequisicao.nome}%0A` +
-                    `*Descrição:* ${dadosRequisicao.descricao}%0A%0A` +
-                    `*Link para Aprovação:*%0A${linkAprovacao}`;
+                // Passo 3: Monta a mensagem do WhatsApp (sem codificação manual)
+                const mensagem = `*Nova Requisição de Compra*\n\n` +
+                    `*Solicitante:* ${dadosRequisicao.nome}\n` +
+                    `*Descrição:* ${dadosRequisicao.descricao}\n\n` +
+                    `*Link para Aprovação:*\n${linkAprovacao}`;
 
+                // A função encodeURIComponent vai cuidar da codificação correta de toda a mensagem
                 const linkWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
+
+                // --- FIM DA CORREÇÃO ---
 
                 // Passo 4: Abre o WhatsApp e mostra a mensagem de confirmação
                 window.open(linkWhatsApp, '_blank');
