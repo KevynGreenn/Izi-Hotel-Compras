@@ -30,7 +30,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // --- NOVA FUNÇÃO DE E-MAIL PARA O ADMIN ---
 async function enviarEmailConfirmacaoAdmin(requisicao) {
-  const adminEmail = "kevynwpantunes2@gmail.com";
+  const adminEmail = "adm.ms@izihoteis.com.br";
 
   let dataFormatada = 'N/A';
   if (requisicao.data_pagamento) {
