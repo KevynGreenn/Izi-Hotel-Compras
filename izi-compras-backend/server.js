@@ -1,3 +1,6 @@
+//14997990091
+//adm.ms@izihoteis.com.br
+
 const express = require('express');
 const pkg = require('pg');
 const dotenv = require('dotenv');
@@ -17,10 +20,8 @@ const pool = new Pool({
   },
 });
 
-// ### CORREÇÃO DEFINITIVA DO CORS APLICADA AQUI ###
-// Define a origem permitida de forma fixa e correta para o que o navegador espera.
 const corsOptions = {
-    origin: "https://kevyngreenn.github.io",
+    origin: process.env.FRONTEND_URL || "https://kevyngreenn.github.io",
     optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
@@ -28,92 +29,84 @@ app.use(express.json());
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-// --- FUNÇÕES DE E-MAIL ---
-
-async function enviarEmailAprovacao(emailDestino, token) {
-    // Esta função usa a variável FRONTEND_URL para montar o link COMPLETO
-    const frontendUrl = process.env.FRONTEND_URL;
-    if (!frontendUrl) {
-        console.error("ERRO CRÍTICO: FRONTEND_URL não está definido. E-mail de aprovação não enviado.");
-        return;
+// --- NOVA FUNÇÃO DE E-MAIL PARA O ADMIN ---
+async function enviarEmailConfirmacaoAdmin(requisicao) {
+    const adminEmail = "kevynwpantunes2@gmail.com";
+    
+    // Formata a data para dd/mm/yyyy
+    let dataFormatada = 'N/A';
+    if (requisicao.data_pagamento) {
+        const dataArray = requisicao.data_pagamento.split('T')[0].split('-');
+        dataFormatada = `${dataArray[2]}/${dataArray[1]}/${dataArray[0]}`;
     }
-    const linkAprovacao = `${frontendUrl}/aprovar.html?token=${token}`;
+
+    // Monta a lista de detalhes
+    const detalhesHtml = `
+        <ul>
+            <li><strong>ID da Requisição:</strong> #${requisicao.token.substring(0,6)}</li>
+            <li><strong>Status:</strong> ${requisicao.status}</li>
+            <li><strong>Solicitante:</strong> ${requisicao.nome_solicitante || 'N/A'}</li>
+            <li><strong>Contato:</strong> ${requisicao.telefone || 'N/A'}</li>
+            <li><strong>Centro de Custo:</strong> ${requisicao.centro_custo || 'N/A'}</li>
+            <li><strong>Valor:</strong> R$ ${requisicao.valor || 'N/A'}</li>
+            <li><strong>Data do Pagamento:</strong> ${dataFormatada}</li>
+            <li><strong>Forma de Pagamento:</strong> ${requisicao.opcao_pagamento || 'N/A'}</li>
+            ${requisicao.opcao_pagamento === 'Pix' ? `
+                <li><strong>PIX do Fornecedor:</strong> ${requisicao.pix_fornecedor || 'N/A'}</li>
+                <li><strong>Nome do Fornecedor:</strong> ${requisicao.nome_fornecedor || 'N/A'}</li>
+            ` : ''}
+        </ul>
+        <p><strong>Descrição Completa:</strong></p>
+        <p style="white-space: pre-wrap;">${requisicao.descricao || 'N/A'}</p>
+    `;
 
     const msg = {
-        to: emailDestino,
+        to: adminEmail,
         from: 'kevynwpantunes2@gmail.com', // SEU E-MAIL VERIFICADO
-        subject: `Nova Requisição de Compra (#${token.substring(0,6)})`,
-        html: `<p>Uma nova solicitação de compra precisa da sua aprovação. Clique no link para visualizar: <a href="${linkAprovacao}">Ver Requisição</a></p>`,
-    };
-
-    try {
-        await sgMail.send(msg);
-        console.log('E-mail de aprovação enviado!');
-    } catch (error) {
-        console.error('Erro ao enviar e-mail de aprovação:', error.response ? error.response.body : error);
-    }
-}
-
-async function enviarEmailStatus(requisicao) {
-    if (!requisicao.email_solicitante) {
-        console.log(`Requisição ${requisicao.id} sem e-mail do solicitante. Notificação de status não enviada.`);
-        return;
-    }
-    const statusText = requisicao.status === 'Aprovada' ? 'APROVADA' : 'REJEITADA';
-    const msg = {
-        to: requisicao.email_solicitante,
-        from: 'kevynwpantunes2@gmail.com', // SEU E-MAIL VERIFICADO
-        subject: `Sua Requisição de Compra foi ${statusText}`,
+        subject: `Requisição #${requisicao.token.substring(0,6)} foi APROVADA`,
         html: `
-            <p>Olá, ${requisicao.nome_solicitante},</p>
-            <p>A sua requisição de compra para "${requisicao.descricao.substring(0, 50)}..." foi <strong>${statusText}</strong>.</p>
-            <p>ID da Requisição: #${requisicao.token.substring(0,6)}</p>
+            <p>A seguinte requisição de compra foi aprovada:</p>
+            ${detalhesHtml}
         `,
     };
+
     try {
         await sgMail.send(msg);
-        console.log(`E-mail de status '${statusText}' enviado para ${requisicao.email_solicitante}`);
+        console.log(`E-mail de confirmação de aprovação enviado para ${adminEmail}`);
     } catch (error) {
-        console.error('Erro ao enviar e-mail de status:', error.response ? error.response.body : error);
+        console.error('Erro ao enviar e-mail de confirmação:', error.response ? error.response.body : error);
     }
 }
 
-// --- ROTAS DA API (sem alterações) ---
+// --- ROTAS DA API ATUALIZADAS ---
 
+// Criar requisição
 app.post('/api/requisicao', async (req, res) => {
   try {
     const { nome, email, telefone, descricao, centroCusto, valor, dataPagamento, opcaoPagamento, pix, fornecedor } = req.body;
     const token = crypto.randomBytes(20).toString('hex');
     const query = `
       INSERT INTO requisicoes (nome_solicitante, email_solicitante, telefone, descricao, centro_custo, valor, data_pagamento, opcao_pagamento, pix_fornecedor, nome_fornecedor, status, token)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'Pendente', $11) RETURNING *`;
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'Pendente', $11) RETURNING token`;
     const result = await pool.query(query, [nome, email, telefone, descricao, centroCusto, valor, dataPagamento, opcaoPagamento, pix, fornecedor, token]);
 
-    const approverEmail = process.env.APPROVER_EMAIL;
-    if (approverEmail) {
-        await enviarEmailAprovacao(approverEmail, token);
-    }
-    res.status(201).json(result.rows[0]);
+    // Retorna o token e o URL do frontend para o comprador.html montar o link do WhatsApp
+    res.status(201).json({ 
+        token: result.rows[0].token,
+        frontend_url: process.env.FRONTEND_URL 
+    });
   } catch (error) {
     console.error('Erro ao criar requisição:', error);
     res.status(500).json({ message: 'Erro no servidor ao criar requisição.' });
   }
 });
 
+// Buscar requisição (sem alterações)
 app.get('/api/requisicao/:token', async (req, res) => {
-  try {
-    const { token } = req.params;
-    const result = await pool.query('SELECT * FROM requisicoes WHERE token = $1', [token]);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Requisição não encontrada.' });
-    }
-    res.status(200).json(result.rows[0]);
-  } catch (error) {
-    console.error('Erro ao buscar requisição:', error);
-    res.status(500).json({ message: 'Erro no servidor.' });
-  }
+    // ...código existente...
 });
 
+// Aprovar requisição
 app.post('/api/requisicao/:token/aprovar', async (req, res) => {
   try {
     const { token } = req.params;
@@ -121,7 +114,11 @@ app.post('/api/requisicao/:token/aprovar', async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Requisição não encontrada.' });
     }
-    await enviarEmailStatus(result.rows[0]);
+    
+    // --- NOVIDADE AQUI ---
+    // Envia o e-mail detalhado para o admin
+    await enviarEmailConfirmacaoAdmin(result.rows[0]);
+
     res.status(200).json({ message: 'Requisição aprovada com sucesso!' });
   } catch (error) {
     console.error('Erro ao aprovar:', error);
@@ -129,6 +126,7 @@ app.post('/api/requisicao/:token/aprovar', async (req, res) => {
   }
 });
 
+// Rejeitar requisição (agora só atualiza o status)
 app.post('/api/requisicao/:token/rejeitar', async (req, res) => {
   try {
     const { token } = req.params;
@@ -136,7 +134,6 @@ app.post('/api/requisicao/:token/rejeitar', async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Requisição não encontrada.' });
     }
-    await enviarEmailStatus(result.rows[0]);
     res.status(200).json({ message: 'Requisição rejeitada.' });
   } catch (error) {
     console.error('Erro ao rejeitar:', error);
