@@ -21,7 +21,7 @@ const pool = new Pool({
 });
 
 const corsOptions = {
-    origin: process.env.FRONTEND_URL || "https://kevyngreenn.github.io",
+    origin: process.env.FRONTEND_URL || "https://kevyngreenn.github.io/Izi-Hotel-Compras",
     optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
