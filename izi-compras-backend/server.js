@@ -79,6 +79,7 @@ async function enviarEmailConfirmacaoAdmin(requisicao) {
 // --- ROTAS DA API ---
 
 // Criar requisição
+// Criar requisição
 app.post('/api/requisicao', async (req, res) => {
   try {
     const { nome, email, telefone, descricao, centroCusto, valor, dataPagamento, opcaoPagamento, pix, fornecedor } = req.body;
@@ -88,16 +89,17 @@ app.post('/api/requisicao', async (req, res) => {
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'Pendente', $11) RETURNING token`;
     const result = await pool.query(query, [nome, email, telefone, descricao, centroCusto, valor, dataPagamento, opcaoPagamento, pix, fornecedor, token]);
 
-    // Retorna o token e o URL do frontend para o comprador.html montar o link do WhatsApp
-    res.status(201).json({
-      token: result.rows[0].token,
-      frontend_url: process.env.FRONTEND_URL
+    // ✅ Link fixado corretamente
+    res.status(201).json({ 
+        token: result.rows[0].token,
+        frontend_url: "https://kevyngreenn.github.io/Izi-Hotel-Compras"
     });
   } catch (error) {
     console.error('Erro ao criar requisição:', error);
     res.status(500).json({ message: 'Erro no servidor ao criar requisição.' });
   }
 });
+
 
 // Buscar requisição (para a página de aprovação)
 app.get('/api/requisicao/:token', async (req, res) => {
