@@ -16,102 +16,119 @@
         .btn-reject { background-color: #e74c3c; }
         .btn-reject:hover { background-color: #c0392b; }
         #status-message { margin-top: 20px; font-weight: bold; font-size: 1.1em; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
-    <main class="card">
-        <img src="logo.png" alt="Logo Izi Hotel" class="logo">
-        <div id="loading-state"><h1>Carregando Requisição...</h1></div>
-        <div id="content-wrapper" class="hidden">
-            <h1>Detalhes da Requisição</h1>
-            <div class="details-container">
-                <p><strong>Status:</strong> <span id="detail-status"></span></p>
-                <p><strong>Solicitante:</strong> <span id="detail-nome"></span></p>
-                <p><strong>Contato:</strong> <span id="detail-telefone"></span></p>
-                <p><strong>Centro de Custo:</strong> <span id="detail-centro-custo"></span></p>
-                <p><strong>Valor:</strong> R$ <span id="detail-valor"></span></p>
-                <p><strong>Data Pgto:</strong> <span id="detail-data-pagamento"></span></p>
-                <p><strong>Forma Pgto:</strong> <span id="detail-pagamento"></span></p>
-                <div id="pix-details" class="hidden">
-                    <p><strong>PIX Fornecedor:</strong> <span id="detail-pix"></span></p>
-                    <p><strong>Nome Fornecedor:</strong> <span id="detail-fornecedor"></span></p>
-                </div>
-                <p><strong>Descrição:</strong><br><span id="detail-descricao" style="white-space: pre-wrap;"></span></p>
+
+<script>
+  // =============================
+  // BLOQUEIO POR SENHA EM JS
+  // =============================
+  const SENHA_CORRETA = "212552";
+
+  if (sessionStorage.getItem("autenticado") !== "true") {
+    let senha = prompt("Digite a senha de administrador:");
+    if (senha === SENHA_CORRETA) {
+      sessionStorage.setItem("autenticado", "true");
+    } else {
+      alert("Senha incorreta!");
+      window.location.href = "index.html";
+    }
+  }
+</script>
+
+<main class="card">
+    <img src="logo.png" alt="Logo Izi Hotel" class="logo">
+    <div id="loading-state"><h1>Carregando Requisição...</h1></div>
+    <div id="content-wrapper" class="hidden">
+        <h1>Detalhes da Requisição</h1>
+        <div class="details-container">
+            <p><strong>Status:</strong> <span id="detail-status"></span></p>
+            <p><strong>Solicitante:</strong> <span id="detail-nome"></span></p>
+            <p><strong>Contato:</strong> <span id="detail-telefone"></span></p>
+            <p><strong>Centro de Custo:</strong> <span id="detail-centro-custo"></span></p>
+            <p><strong>Valor:</strong> R$ <span id="detail-valor"></span></p>
+            <p><strong>Data Pgto:</strong> <span id="detail-data-pagamento"></span></p>
+            <p><strong>Forma Pgto:</strong> <span id="detail-pagamento"></span></p>
+            <div id="pix-details" class="hidden">
+                <p><strong>PIX Fornecedor:</strong> <span id="detail-pix"></span></p>
+                <p><strong>Nome Fornecedor:</strong> <span id="detail-fornecedor"></span></p>
             </div>
-            <div class="action-buttons">
-                <button class="btn btn-reject" id="reject-btn">Rejeitar</button>
-                <button class="btn btn-approve" id="approve-btn">Aprovar</button>
-            </div>
-            <p id="status-message"></p>
+            <p><strong>Descrição:</strong><br><span id="detail-descricao" style="white-space: pre-wrap;"></span></p>
         </div>
-    </main>
-    <script>
-        // ### CORREÇÃO APLICADA AQUI ###
-        const API_BASE = "https://izi-hotel-api.onrender.com";
-        const params = new URLSearchParams(window.location.search);
-        const token = params.get("token");
+        <div class="action-buttons">
+            <button class="btn btn-reject" id="reject-btn">Rejeitar</button>
+            <button class="btn btn-approve" id="approve-btn">Aprovar</button>
+        </div>
+        <p id="status-message"></p>
+    </div>
+</main>
 
-        // Resto do script continua igual...
-        const loadingDiv = document.getElementById('loading-state');
-        const contentDiv = document.getElementById('content-wrapper');
-        const statusMessage = document.getElementById('status-message');
+<script>
+    const API_BASE = "https://izi-hotel-api.onrender.com";
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
 
-        async function updateStatus(action) {
-            try {
-                const response = await fetch(`${API_BASE}/api/requisicao/${token}/${action}`, { method: "POST" });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.message || `Erro ao ${action}.`);
-                statusMessage.textContent = data.message;
-                statusMessage.style.color = action === 'aprovar' ? '#27ae60' : '#e74c3c';
-                loadRequestDetails();
-            } catch (error) {
-                statusMessage.textContent = error.message;
-                statusMessage.style.color = '#e74c3c';
-            }
+    const loadingDiv = document.getElementById('loading-state');
+    const contentDiv = document.getElementById('content-wrapper');
+    const statusMessage = document.getElementById('status-message');
+
+    async function updateStatus(action) {
+        try {
+            const response = await fetch(`${API_BASE}/api/requisicao/${token}/${action}`, { method: "POST" });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || `Erro ao ${action}.`);
+            statusMessage.textContent = data.message;
+            statusMessage.style.color = action === 'aprovar' ? '#27ae60' : '#e74c3c';
+            loadRequestDetails();
+        } catch (error) {
+            statusMessage.textContent = error.message;
+            statusMessage.style.color = '#e74c3c';
         }
+    }
 
-        async function loadRequestDetails() {
-            if (!token) {
-                loadingDiv.innerHTML = '<h1>Erro: Token não encontrado na URL.</h1>';
-                return;
-            }
-            try {
-                const response = await fetch(`${API_BASE}/api/requisicao/${token}`);
-                if (!response.ok) throw new Error("Requisição não encontrada ou inválida.");
-                
-                const data = await response.json();
-                
-                document.getElementById('detail-status').textContent = data.status;
-                document.getElementById('detail-nome').textContent = data.nome_solicitante;
-                document.getElementById('detail-telefone').textContent = data.telefone;
-                document.getElementById('detail-centro-custo').textContent = data.centro_custo;
-                document.getElementById('detail-valor').textContent = data.valor;
-                
-                if (data.data_pagamento) {
-                    const dataArray = data.data_pagamento.split('T')[0].split('-');
-                    document.getElementById('detail-data-pagamento').textContent = `${dataArray[2]}/${dataArray[1]}/${dataArray[0]}`;
-                }
-
-                document.getElementById('detail-pagamento').textContent = data.opcao_pagamento;
-                document.getElementById('detail-descricao').textContent = data.descricao;
-                
-                if (data.opcao_pagamento === 'Pix') {
-                    document.getElementById('pix-details').classList.remove('hidden');
-                    document.getElementById('detail-pix').textContent = data.pix_fornecedor;
-                    document.getElementById('detail-fornecedor').textContent = data.nome_fornecedor;
-                }
-
-                loadingDiv.classList.add('hidden');
-                contentDiv.classList.remove('hidden');
-            } catch (err) {
-                loadingDiv.innerHTML = `<h1>${err.message}</h1>`;
-            }
+    async function loadRequestDetails() {
+        if (!token) {
+            loadingDiv.innerHTML = '<h1>Erro: Token não encontrado na URL.</h1>';
+            return;
         }
+        try {
+            const response = await fetch(`${API_BASE}/api/requisicao/${token}`);
+            if (!response.ok) throw new Error("Requisição não encontrada ou inválida.");
+            const data = await response.json();
+            document.getElementById('detail-status').textContent = data.status;
+            document.getElementById('detail-nome').textContent = data.nome_solicitante;
+            document.getElementById('detail-telefone').textContent = data.telefone;
+            document.getElementById('detail-centro-custo').textContent = data.centro_custo;
+            document.getElementById('detail-valor').textContent = data.valor;
 
-        document.getElementById('approve-btn').addEventListener('click', () => updateStatus('aprovar'));
-        document.getElementById('reject-btn').addEventListener('click', () => updateStatus('rejeitar'));
+            if (data.data_pagamento) {
+                const dataArray = data.data_pagamento.split('T')[0].split('-');
+                document.getElementById('detail-data-pagamento').textContent = `${dataArray[2]}/${dataArray[1]}/${dataArray[0]}`;
+            }
 
-        loadRequestDetails();
-    </script>
+            document.getElementById('detail-pagamento').textContent = data.opcao_pagamento;
+            document.getElementById('detail-descricao').textContent = data.descricao;
+
+            if (data.opcao_pagamento === 'Pix') {
+                document.getElementById('pix-details').classList.remove('hidden');
+                document.getElementById('detail-pix').textContent = data.pix_fornecedor;
+                document.getElementById('detail-fornecedor').textContent = data.nome_fornecedor;
+            }
+
+            loadingDiv.classList.add('hidden');
+            contentDiv.classList.remove('hidden');
+        } catch (err) {
+            loadingDiv.innerHTML = `<h1>${err.message}</h1>`;
+        }
+    }
+
+    document.getElementById('approve-btn').addEventListener('click', () => updateStatus('aprovar'));
+    document.getElementById('reject-btn').addEventListener('click', () => updateStatus('rejeitar'));
+
+    loadRequestDetails();
+</script>
+
 </body>
 </html>
