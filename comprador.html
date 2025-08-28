@@ -16,31 +16,49 @@
             <div class="form-container">
                 <label for="nome">Nome Completo</label>
                 <input type="text" id="nome" placeholder="Seu nome aqui">
+                
                 <label for="email">Seu E-mail (Opcional)</label>
                 <input type="email" id="email" placeholder="seu.email@exemplo.com">
+                
                 <label for="telefone">Telefone (WhatsApp)</label>
                 <input type="text" id="telefone" placeholder="(XX) XXXXX-XXXX">
+                
                 <label for="descricao">Descrição detalhada da compra</label>
                 <textarea id="descricao" rows="5" placeholder="Ex: 10 caixas de caneta azul..."></textarea>
+                
                 <p class="aviso"><strong>Atenção:</strong> Por favor, seja o mais detalhado possível.</p>
+                
                 <label for="centro-custo">Centro de Custo</label>
                 <input type="text" id="centro-custo" placeholder="Ex: Izi Express">
+                
                 <label for="valor">Valor do Produto (R$)</label>
                 <input type="text" id="valor" placeholder="Ex: 150,00">
+                
                 <label for="data-pagamento">Data do Pagamento</label>
                 <input type="date" id="data-pagamento">
+                
                 <label for="pagamento">Opção de Pagamento</label>
                 <select id="pagamento">
                     <option value="Cartão">Cartão</option>
                     <option value="Faturado">Faturado</option>
                     <option value="Pix">Pix</option>
+                    <option value="Boleto">Boleto</option>
                 </select>
+                
+                <!-- Campos PIX -->
                 <div id="pix-field" class="hidden">
                     <label for="pix">PIX do Fornecedor</label>
                     <input type="text" id="pix" placeholder="Chave PIX do fornecedor">
                     <label for="fornecedor">Nome do Fornecedor</label>
                     <input type="text" id="fornecedor" placeholder="Nome do fornecedor">
                 </div>
+                
+                <!-- Campos Boleto -->
+                <div id="boleto-field" class="hidden">
+                    <label for="boleto">Anexar Boleto</label>
+                    <input type="file" id="boleto" accept=".pdf,.jpg,.png">
+                </div>
+                
                 <button class="btn" id="submit-btn">
                     <span class="btn-text">Enviar Requisição</span>
                     <span class="spinner hidden"></span>
@@ -48,6 +66,7 @@
             </div>
             <a href="index.html" class="back-link">Voltar para a Home</a>
         </div>
+        
         <div id="confirmation-message" class="hidden">
             <div class="success-animation">
                 <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
@@ -60,6 +79,7 @@
             <a href="index.html" class="btn">Voltar para a Home</a>
         </div>
     </main>
+
     <script src="https://unpkg.com/imask"></script>
     <script>
         const formWrapper = document.getElementById('form-wrapper');
@@ -67,13 +87,16 @@
         const submitBtn = document.getElementById('submit-btn');
         const pagamentoInput = document.getElementById('pagamento');
         const pixField = document.getElementById('pix-field');
+        const boletoField = document.getElementById('boleto-field');
 
         pagamentoInput.addEventListener('change', () => {
             pixField.classList.toggle('hidden', pagamentoInput.value !== 'Pix');
+            boletoField.classList.toggle('hidden', pagamentoInput.value !== 'Boleto');
         });
 
         submitBtn.addEventListener('click', async (event) => {
             event.preventDefault();
+
             const dadosRequisicao = {
                 nome: document.getElementById('nome').value,
                 email: document.getElementById('email').value,
@@ -84,7 +107,8 @@
                 dataPagamento: document.getElementById('data-pagamento').value,
                 opcaoPagamento: document.getElementById('pagamento').value,
                 pix: document.getElementById('pix').value,
-                fornecedor: document.getElementById('fornecedor').value
+                fornecedor: document.getElementById('fornecedor').value,
+                boleto: document.getElementById('boleto').files[0] ? document.getElementById('boleto').files[0].name : ''
             };
 
             submitBtn.disabled = true;
@@ -102,26 +126,15 @@
                     const errorData = await response.json();
                     throw new Error(errorData.message || 'Falha ao criar a requisição no servidor.');
                 }
-                
+
                 const data = await response.json();
+                if (!data.token) throw new Error('Não foi possível obter o token de aprovação da API.');
 
-                // --- INÍCIO DA CORREÇÃO DEFINITIVA ---
-
-                // 1. Validação robusta dos dados da API
-                if (!data.token) {
-                    throw new Error('Não foi possível obter o token de aprovação da API.');
-                }
-                
-                // 2. Define a URL base, com um fallback (plano B) para garantir que nunca falhe
-                const baseUrl = data.frontend_url || 'https://kevyngreenn.github.io/kevyngreenn-izi-hotel-compras';
+                const baseUrl = data.frontend_url || 'https://kevyngreenn.github.io/Izi-Hotel-Compras';
                 const token = data.token;
                 const numeroWhatsApp = "14997990091";
 
-                // 3. Monta o link final
                 const linkAprovacao = `${baseUrl}/aprovar.html?token=${token}`;
-                
-                // --- FIM DA CORREÇÃO ---
-                
                 const mensagem = `*Nova Requisição de Compra*\n\n` +
                     `*Solicitante:* ${dadosRequisicao.nome}\n` +
                     `*Descrição:* ${dadosRequisicao.descricao}\n\n` +
